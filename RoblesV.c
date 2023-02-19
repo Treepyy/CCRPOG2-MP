@@ -19,10 +19,47 @@ otherwise plagiarized the work of other students and/or persons.
 #define ENTER 13
 #define BACKSPACE 127
 
-
+/* ================================ */
+// Type Definitions
 typedef char pwd[MAX_LENGTH];
+typedef char string20[21];
+typedef char string30[31];
+typedef char string150[151];
 
+/* ================================ */
+// Structures
+struct questionData{
+
+	string20 topic;
+	int questionNumber;
+	string150 question;
+	string30 choice1;
+	string30 choice2;
+	string30 choice3;
+	string30 answer;
+
+};
+
+struct playerData{
+
+	string20 name;
+	int score;
+
+};
+
+/* ================================ */
+// Function Prototypes
 void adminPanel();
+void playGame();
+void viewScores();
+void addRecord();
+void editRecord();
+void deleteRecord();
+void importData();
+void exportData();
+
+/* ================================ */
+// Text Coloring Functions
 
 //  This function changes the text color to a brighter white
 void bold()
@@ -52,7 +89,6 @@ void yellow()
 	SetConsoleTextAttribute(hc, 0xE);
 }
 
-
 //  This function changes the text color to red
 void red()
 {
@@ -66,6 +102,10 @@ void reset()
 	HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hc, 0x7);
 }
+
+
+/* ================================ */
+// 'Main' Functions
 
 // Prototype function for password functionality with hidden input (does not support backspace)
 void passwordPrototype(){
@@ -91,13 +131,13 @@ void passwordPrototype(){
 	      
 	      	// If the input is not the enter key, prints an asterisk and increments by 1
 			if(input != ENTER){    
-	            printf("*");
 	            if (input == BACKSPACE){
 	            	passwordInput[i] = '\0';
 	           		putchar('\b');
 	           		putchar(' ');
 	           		putchar('\b');
 				}
+				printf("*");
 	    	}
 	    	
 	    	// If the input is the enter key, the current index will be set to NULL and the loop will terminate
@@ -151,52 +191,85 @@ void passwordPrototype(){
 
 // Function that prints the main menu interface.
 void displayMainMenu(){
-	
-	bold(); printf("|-----------------|\n"); reset();
-	bold(); printf("|    Main Menu    |\n"); reset();
-	bold(); printf("|                 |\n"); reset();
-	bold(); printf("|"); reset();
-	yellow(); printf("[1] Manage Data"); reset();
-	bold(); printf("  |\n"); reset();
-	bold(); printf("|"); reset();
-	green(); printf("[2] Play"); reset();
-	bold(); printf("         |\n"); reset();
-	bold(); printf("|"); reset();
-	red(); printf("[3] Exit"); reset();
-	bold(); printf("         |\n"); reset();
-	bold(); printf("|                 |\n"); reset();
-	bold(); printf("|-----------------|\n"); reset();
+
+	printf("+-----------------+\n");
+	printf("|"); bold(); printf("    Main Menu    "); reset(); printf("|\n");
+	printf("+=================+\n");
+	printf("|                 |\n");
+	printf("|"); green(); printf(" [1] Play        "); reset(); printf("|\n");
+	printf("|"); yellow(); printf(" [2] Manage Data "); reset(); printf("|\n");
+	printf("|"); red(); printf(" [3] Exit        "); reset(); printf("|\n");
+	printf("|                 |\n");
+	printf("+-----------------+\n");
 	
 }
 
-void playGame(){
+// Function that prints the Admin menu interface.
+void displayAdminMenu(){
+
+	printf("+---------------------+\n");
+	printf("|"); bold(); printf("     Manage Data     "); reset(); printf("|\n");
+	printf("+=====================+\n");
+	printf("|                     |\n");
+	printf("|"); green(); printf(" [1] Add a Record    "); reset(); printf("|\n");
+	printf("|"); yellow(); printf(" [2] Edit a Record   "); reset(); printf("|\n");
+	printf("|"); red(); printf(" [3] Delete a Record "); reset(); printf("|\n");
+	printf("|"); green(); printf(" [4] Import Data     "); reset(); printf("|\n");
+	printf("|"); yellow(); printf(" [5] Export Data     "); reset(); printf("|\n");
+	printf("|"); red(); printf(" [6] Exit            "); reset(); printf("|\n");
+	printf("|                     |\n");
+	printf("+---------------------+\n");
+
+}
+
+// Function that prints the Play menu interface.
+void displayPlayMenu(){
+
+	printf("+-----------------+\n");
+	printf("|"); bold(); printf("     Welcome!    "); reset(); printf("|\n");
+	printf("+=================+\n");
+	printf("|                 |\n");
+	printf("|"); green(); printf(" [1] Play Game   "); reset(); printf("|\n");
+	printf("|"); yellow(); printf(" [2] View Scores "); reset(); printf("|\n");
+	printf("|"); red(); printf(" [3] Exit        "); reset(); printf("|\n");
+	printf("|                 |\n");
+	printf("+-----------------+\n");
+
+}
+
+// Function that handles inputs for the Play menu
+void playPanel(){
 	
 	char input;
 	
 	while (input != '3'){
-		printf("MENU_PLAY_GAME\nEnter your selection\n >> ");
-		scanf(" %c", &input);
+		displayPlayMenu();
+		cyan(); printf("\n[Press the number corresponding to your selection.]\n"); reset();
+		input = _getch();
 		
 		switch(input){
 			
 			case '1':
-				printf("1\n");
+				system("cls");
+				printf("playGame();\n");
 				
 				break;
 				
 			case '2':
-				printf("2\n");
+				system("cls");
+				printf("viewScores(); \n");
 				
 				break;
 				
 			case '3': // If 'Exit' is chosen, the program is terminated through a return value in the main function.
-				printf("Exit\n");
+				system("cls");
 				
 				break;
 			
 			default: 
 				// If the input is not within the given parameters, 'invalid input' will be displayed and the main menu will be shown again.
-				printf("\nInvalid input. Please select a valid option.\n"); 
+				system("cls");
+				red(); printf("\nInvalid input. Please select a valid option.\n"); reset();
 				break;
 				
 		}
@@ -204,40 +277,63 @@ void playGame(){
 	
 }
 
+// Function that handles inputs for the Manage Data menu
 void adminPanel(){
 
 	char input;
 	
-	while (input != '3'){
-		printf("MENU_ADMIN_PANEL\nEnter your selection\n >> ");
-		scanf(" %c", &input);
+	while (input != '6'){
+		displayAdminMenu();
+		cyan(); printf("\n[Press the number corresponding to your selection.]\n"); reset();
+		input = _getch();
 		
 		switch(input){
 			
 			case '1':
-				printf("1\n");
+				system("cls");
+				printf("addRecord(); \n");
 				
 				break;
 				
 			case '2':
-				printf("2\n");
+				system("cls");
+				printf("editRecord(); \n");
 				
 				break;
+
+			case '3':
+				system("cls");
+				printf("deleteRecord(); \n");
 				
-			case '3': // If 'Exit' is chosen, the program is terminated through a return value in the main function.
-				printf("Exit\n");
+				break;
+
+			case '4':
+				system("cls");
+				printf("importData(); \n");
 				
+				break;
+
+			case '5':
+				system("cls");
+				printf("exportData(); \n");
+				
+				break;
+			
+			case '6': // If 'Exit' is chosen, the program is terminated through a return value in the main function.
+				system("cls");
 				break;
 			
 			default: 
 				// If the input is not within the given parameters, 'invalid input' will be displayed and the main menu will be shown again.
-				printf("\nInvalid input. Please select a valid option.\n"); 
+				red(); printf("\nInvalid input. Please select a valid option.\n"); reset();
 				break;
 				
 		}
 	}
 	
 }
+
+/* ================================ */
 
 int main(){
 	
@@ -246,20 +342,20 @@ int main(){
 	while (input != '3'){
 		
 		displayMainMenu();
-		printf("\nEnter your selection\n >> ");
-		scanf(" %c", &input);
+		cyan(); printf("\n[Press the number corresponding to your selection.]\n"); reset();
+		input = _getch();
 		
 		switch(input){
 			
 			case '1':
 				system("cls");
-				passwordPrototype();
-				
+				playPanel();
+		
 				break;
 				
 			case '2':
 				system("cls");
-				playGame();
+				passwordPrototype();
 				
 				break;
 				
@@ -270,7 +366,8 @@ int main(){
 			
 			default: 
 				// If the input is not within the given parameters, 'invalid input' will be displayed and the main menu will be shown again.
-				printf("\nInvalid input. Please select a valid option.\n"); 
+				system("cls");
+				red(); printf("\nInvalid input! Please select a valid option.\n\n"); reset();
 				break;
 				
 		}
