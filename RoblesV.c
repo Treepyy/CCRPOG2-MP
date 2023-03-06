@@ -15,6 +15,9 @@ otherwise plagiarized the work of other students and/or persons.
 #include <string.h>
 
 #define MAX_LENGTH 33
+#define MAX_PLAYERS 10
+#define MAX_QUESTIONS 30
+#define MAX_SENTENCE 129
 #define TERMINATE MAX_LENGTH
 #define ENTER 13
 #define BACKSPACE 127
@@ -26,9 +29,8 @@ typedef char string20[21];
 typedef char string30[31];
 typedef char string150[151];
 
-/* ================================ */
 // Structures
-struct questionData{
+typedef struct {
 
 	string20 topic;
 	int questionNumber;
@@ -38,14 +40,14 @@ struct questionData{
 	string30 choice3;
 	string30 answer;
 
-};
+}questionData;
 
-struct playerData{
+typedef struct {
 
 	string20 name;
 	int score;
 
-};
+}playerData;
 
 /* ================================ */
 // Function Prototypes
@@ -107,11 +109,61 @@ void reset()
 /* ================================ */
 // 'Main' Functions
 
-// Prototype function for password functionality with hidden input (does not support backspace)
+// Base function for getting string inputs that include spaces
+void getStrInput(char string[]){
+	char ch;
+	int i = 0;
+
+	do {
+		scanf("%c", &ch);
+		if (ch != '\n'){
+			string[i] = ch;
+			i++;
+			string[i] = '\0';
+		}
+	}while (i < MAX_SENTENCE && ch != '\n');
+}
+
+// String input function for strings with shorter length
+void getShortStrInput(char string[]){
+	char ch;
+	int i = 0;
+
+	do {
+		scanf("%c", &ch);
+		if (ch != '\n'){
+			string[i] = ch;
+			i++;
+			string[i] = '\0';
+		}
+	}while (i < MAX_LENGTH && ch != '\n');
+}
+
+/*
+// Prototype function for password functionality with hidden input using scanf
+void passwordInput(){
+
+	// Variable declarations
+	int i;
+    int active = 1;
+    char input;
+
+	pwd passwordInput;
+	pwd correctPassword = "password69";
+
+	while (active == 1){
+		printf("Enter your password: ");
+		getShortStrInput(passwordInput);
+
+	}
+}
+*/
+
+// Prototype function for password functionality with hidden input using getch
 void passwordPrototype(){
 	
 	// Variable declarations
-     int i;
+
      int active = 1;
      char input;
      char exit = '\0';
@@ -119,33 +171,40 @@ void passwordPrototype(){
      pwd correctPassword = "password69";
      
      while (active == 1){
-     	
-	     printf("Enter your password: ");
+		
+		int i = 0;
+	     printf("Enter your password:\n");
 	     
 	     // For loop for getting password input
-	     for(i = 0; i < MAX_LENGTH; i++)
+	     while (i < MAX_LENGTH)
 	     {
 	        // Gets user input and stores each character of the password into the 'passwordInput' string
 			input = _getch();
 	        passwordInput[i] = input;
 	      
 	      	// If the input is not the enter key, prints an asterisk and increments by 1
-			if(input != ENTER){    
-	            if (input == BACKSPACE){
-	            	passwordInput[i] = '\0';
-	           		putchar('\b');
-	           		putchar(' ');
-	           		putchar('\b');
-				}
-				printf("*");
-	    	}
-	    	
-	    	// If the input is the enter key, the current index will be set to NULL and the loop will terminate
-	        else{
+
+			// If the input is the enter key, the current index will be set to NULL and the loop will terminate
+	        if (input == ENTER){
 	        	passwordInput[i] = '\0';
 	            i = TERMINATE;
 			} 
-	
+
+			if (input == 8){
+	            passwordInput[i] = '\0';
+				i--;
+				input = '\0';
+
+	           	putchar('\b');
+				putchar('\0');
+				putchar('\b');
+
+			}
+	    	
+			else{
+				printf("*");
+				i++;
+			}	
 	    }
 	    // passwordInput[i] = '\0';
 	    
@@ -325,6 +384,7 @@ void adminPanel(){
 			
 			default: 
 				// If the input is not within the given parameters, 'invalid input' will be displayed and the main menu will be shown again.
+				system("cls");
 				red(); printf("\nInvalid input. Please select a valid option.\n"); reset();
 				break;
 				
@@ -337,8 +397,11 @@ void adminPanel(){
 
 int main(){
 	
+
 	char input;
-	
+	questionData questions[MAX_QUESTIONS];
+	playerData players[MAX_PLAYERS];
+
 	while (input != '3'){
 		
 		displayMainMenu();
