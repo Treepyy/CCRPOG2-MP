@@ -17,10 +17,10 @@ otherwise plagiarized the work of other students and/or persons.
 #define MAX_LENGTH 33
 #define MAX_PLAYERS 10
 #define MAX_QUESTIONS 30
-#define MAX_SENTENCE 129
+#define MAX_SENTENCE 151
 #define TERMINATE MAX_LENGTH
 #define ENTER 13
-#define BACKSPACE 127
+#define BACKSPACE 8
 
 /* ================================ */
 // Type Definitions
@@ -59,6 +59,7 @@ void editRecord();
 void deleteRecord();
 void importData();
 void exportData();
+int existingQNACheck();
 
 /* ================================ */
 // Text Coloring Functions
@@ -124,14 +125,15 @@ void getStrInput(char string[]){
 	}while (i < MAX_SENTENCE && ch != '\n');
 }
 
-// String input function for strings with shorter length
-void getShortStrInput(char string[]){
+// String input function for strings and hide it the input with asterisks
+void getPwdStrInput(char string[]){
 	char ch;
 	int i = 0;
 
 	do {
 		scanf("%c", &ch);
 		if (ch != '\n'){
+			printf("*");
 			string[i] = ch;
 			i++;
 			string[i] = '\0';
@@ -160,7 +162,7 @@ void passwordInput(){
 */
 
 // Prototype function for password functionality with hidden input using getch
-void passwordPrototype(){
+void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions){
 	
 	// Variable declarations
 
@@ -190,7 +192,7 @@ void passwordPrototype(){
 	            i = TERMINATE;
 			} 
 
-			if (input == 8){
+			if (input == BACKSPACE){
 	            passwordInput[i] = '\0';
 				i--;
 				input = '\0';
@@ -214,7 +216,7 @@ void passwordPrototype(){
 	    	green(); printf("\nWelcome!\n"); reset();
 	    	Sleep(2000);
 	    	system("cls");
-	    	adminPanel();
+	    	adminPanel(questions, players, totalQuestions);
 	    	active = 0;
 	    	
 		}
@@ -297,7 +299,7 @@ void displayPlayMenu(){
 }
 
 // Function that handles inputs for the Play menu
-void playPanel(){
+void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS]){
 	
 	char input;
 	
@@ -337,7 +339,7 @@ void playPanel(){
 }
 
 // Function that handles inputs for the Manage Data menu
-void adminPanel(){
+void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions){
 
 	char input;
 	
@@ -350,18 +352,21 @@ void adminPanel(){
 			
 			case '1':
 				system("cls");
-				printf("addRecord(); \n");
+				addRecord(questions, totalQuestions);
+				// printf("Total Questions: %d \n", *totalQuestions);
 				
 				break;
 				
 			case '2':
 				system("cls");
+				editRecord();
 				printf("editRecord(); \n");
 				
 				break;
 
 			case '3':
 				system("cls");
+				deleteRecord();
 				printf("deleteRecord(); \n");
 				
 				break;
@@ -393,12 +398,95 @@ void adminPanel(){
 	
 }
 
+void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
+
+	int i = *totalQuestions;
+	string150 tempQuestion;
+	string30 tempAnswer;
+
+	printf("Add a question: ");
+	getStrInput(tempQuestion);
+	printf("%s\n", tempQuestion);
+	printf("Add an answer: ");
+	getStrInput(tempAnswer);
+	printf("%s\n", tempAnswer);
+
+	int questionDuplicate = existingQNACheck(questions, tempQuestion, tempAnswer);
+	printf("%d\n", questionDuplicate);
+
+	if (questionDuplicate){
+		red(); printf("That question and answer already exists!\n"); reset();
+	}
+	else{
+		strcpy(questions[i].question, tempQuestion);
+		strcpy(questions[i].answer, tempAnswer);
+
+		printf("Add a topic: ");
+		getStrInput(questions[i].topic);
+
+		printf("Add the first choice: ");
+		getStrInput(questions[i].choice1);
+
+		printf("Add the second choice: ");
+		getStrInput(questions[i].choice2);
+
+		printf("Add the third choice: ");
+		getStrInput(questions[i].choice3);
+
+		printf("Current input is Question #%d", *totalQuestions+1);
+		questions[i].questionNumber = *totalQuestions + 1;
+
+		*totalQuestions = *totalQuestions + 1;
+	}
+}
+
+int existingQNACheck(questionData questions[MAX_QUESTIONS], string150 addedQn, string30 addedAns){
+
+	int i;
+	int matchQuestion = -1, matchAnswer = -2;
+
+	for (i = 0; i < MAX_QUESTIONS; i++){
+		if (strcmp(questions[i].question, addedQn) == 0){
+			matchQuestion = i;
+			printf("i = %d", i);
+			i = MAX_QUESTIONS;
+		}
+	}
+
+	for (i = 0; i < MAX_QUESTIONS; i++){
+		if (strcmp(questions[i].answer, addedAns) == 0){
+			matchAnswer = i;
+			printf("i = %d", i);
+			i = MAX_QUESTIONS;
+		}
+	}
+
+	if (matchQuestion == matchAnswer){
+		return 1;
+	}
+
+	return 0;
+
+
+}
+
+void editRecord(questionData questions[MAX_QUESTIONS]){
+
+};
+
+void deleteRecord(questionData questions[MAX_QUESTIONS]){
+
+};
+
+
+
 /* ================================ */
 
 int main(){
 	
 
 	char input;
+	int totalQuestions = 0, totalPlayers = 0;
 	questionData questions[MAX_QUESTIONS];
 	playerData players[MAX_PLAYERS];
 
@@ -412,13 +500,13 @@ int main(){
 			
 			case '1':
 				system("cls");
-				playPanel();
+				playPanel(questions, players);
 		
 				break;
 				
 			case '2':
 				system("cls");
-				passwordPrototype();
+				passwordPrototype(questions, players, &totalQuestions);
 				
 				break;
 				
