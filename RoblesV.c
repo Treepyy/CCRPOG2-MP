@@ -60,6 +60,8 @@ void deleteRecord();
 void importData();
 void exportData();
 int existingQNACheck();
+void sortTopics();
+int isInArray();
 
 /* ================================ */
 // Text Coloring Functions
@@ -359,8 +361,7 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 				
 			case '2':
 				system("cls");
-				editRecord();
-				printf("editRecord(); \n");
+				editRecord(questions, totalQuestions);
 				
 				break;
 
@@ -398,29 +399,38 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 	
 }
 
+// Function that handles input for the addRecord function
 void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
+	// The increment variable 'i' is initialized to the total number of questions, which at the start of the program is always set to 0
 	int i = *totalQuestions;
+
 	string150 tempQuestion;
 	string30 tempAnswer;
 
+	// The question and answer will be asked for first, the input will be taken using the getStrInput function.
 	printf("Add a question: ");
 	getStrInput(tempQuestion);
-	printf("%s\n", tempQuestion);
+
 	printf("Add an answer: ");
 	getStrInput(tempAnswer);
-	printf("%s\n", tempAnswer);
 
+	// The questionDuplicate variable will serve as a true or false switch (bool) in order to check if the inputted question and answer pair already exists
 	int questionDuplicate = existingQNACheck(questions, tempQuestion, tempAnswer);
-	printf("%d\n", questionDuplicate);
 
+	// If the question and answer pair is a duplicate, an error message will be printed and the user will return to the previous menu
 	if (questionDuplicate){
 		red(); printf("That question and answer already exists!\n"); reset();
 	}
+
+	// If the question and answer pair is valid;
 	else{
+
+		// The previous inputs will be copied from the temporary variable to their respective struct array child
 		strcpy(questions[i].question, tempQuestion);
 		strcpy(questions[i].answer, tempAnswer);
 
+		// Continuation of input calls, this time the inputs are directly stored in the struct
 		printf("Add a topic: ");
 		getStrInput(questions[i].topic);
 
@@ -433,52 +443,240 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 		printf("Add the third choice: ");
 		getStrInput(questions[i].choice3);
 
-		printf("Current input is Question #%d", *totalQuestions+1);
+		// The question number is automatically assigned as the current number of total questions plus one
+		printf("Current input is Question #%d\n", *totalQuestions+1);
 		questions[i].questionNumber = *totalQuestions + 1;
 
+		// Once the add record is successful, the totalQuestions variable in main will be incremented by one
 		*totalQuestions = *totalQuestions + 1;
 	}
 }
 
+// This fucntion checks if a question-answer pair already exists within the struct
 int existingQNACheck(questionData questions[MAX_QUESTIONS], string150 addedQn, string30 addedAns){
 
 	int i;
 	int matchQuestion = -1, matchAnswer = -2;
 
+	// For loops will loop through all the questions in the struct to try and find if the input already exists
 	for (i = 0; i < MAX_QUESTIONS; i++){
 		if (strcmp(questions[i].question, addedQn) == 0){
+			/* If the input already exists, its index will be stored in matchQuestion and the for loop will be terminated
+			   through assigning the increment i to its maximum value preemptively*/
 			matchQuestion = i;
-			printf("i = %d", i);
 			i = MAX_QUESTIONS;
 		}
 	}
 
 	for (i = 0; i < MAX_QUESTIONS; i++){
 		if (strcmp(questions[i].answer, addedAns) == 0){
+			// Same concept as the for loop above
 			matchAnswer = i;
-			printf("i = %d", i);
 			i = MAX_QUESTIONS;
 		}
 	}
 
+	// If the question-answer pair belongs in the same struct array index, the function will return 1 (true)
 	if (matchQuestion == matchAnswer){
 		return 1;
 	}
 
+	// Else, it returns 0 (false)
 	return 0;
 
 
 }
 
-void editRecord(questionData questions[MAX_QUESTIONS]){
+// Function that handles editing individual question records
+void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 
+	// Increment variables
+	int i, j;
+
+	// Variables for strings (for input and for storing/sorting topics)
+	char input[20];
+	int size = *totalQuestions;
+	string20 topicsData[size];
+
+	// Checking (bool) variables
+	int isUnique, exists;
+
+	// Copies all of the current topics into the topicsData array for local storage
+	for (i = 0; i < size; i++){
+		 strcpy(topicsData[i], questions[i].topic);
+	}
+
+	// Sorts the topics in alphabetical order (Bubble sort)
+	sortTopics(topicsData, *totalQuestions);
+
+	// If total questions is greater than 0, proceed
+	if (*totalQuestions > 0){
+
+		// The while loop will continue until the user enters '1', or a string that starts with '1'
+		while (input[0] != '1'){
+
+			yellow(); printf("Type the Topic to Edit\nEnter [1] to Go Back"); reset();
+			green(); printf("\n\nAvailable Topics:\n"); reset();
+
+			// This loop will scan the topicsData array for duplicate topics, if the topic is a duplicate and is already displayed, it will skip printing it
+			for (i = 0; i < size; i++) {
+			
+				isUnique = 1;
+			
+				for (j = 0; j < i; j++) {
+					if (strcmp(topicsData[i], topicsData[j]) == 0) {
+						isUnique = 0;
+					}
+				}
+
+				if (isUnique) {
+					printf("%s\n", topicsData[i]);
+				}
+			}
+
+			// Gets user input, will be case sensitive
+			printf(">> ");
+			scanf("%s", input);
+			exists = 0;
+
+			// This loop will scan the topicsData array if the input exists
+			for (i = 0; i < *totalQuestions; i++){
+				if (strcmp(input, topicsData[i]) == 0){
+					exists = 1;
+				}
+			}
+
+			// If the input exists, continue
+			if (exists == 1){
+				
+				// Variable for question number input
+				int numInput;
+				
+				// Variable for checking how many Questions a certain topic has
+				int topicQns = 0;
+				for (i = 0; i < *totalQuestions; i++){
+					if (strcmp(input, questions[i].topic) == 0){
+						topicQns++;
+					}
+				}
+				int validNums[topicQns]; 
+
+				int k = 0;
+
+				printf("Question Numbers Associated with the Topic:\n"); 
+
+				// Looks through the questions struct array for the question numbers associated with the inputted topic and stores them in the validNums array
+				for (i = 0; i < *totalQuestions; i++){
+					if (strcmp(input, questions[i].topic) == 0){
+						printf("Question #[%d]\n", questions[i].questionNumber);
+						validNums[k] = questions[i].questionNumber;
+						k++;
+					}
+				}
+
+				while (isInArray(validNums, numInput, topicQns) == 0){
+					printf(">> ");
+					scanf("%d", &numInput);
+					if (isInArray(validNums, numInput, topicQns) == 0){
+						red(); printf("Invalid Input!\n"); reset();
+					}
+				}
+
+				int editInput;
+				printf("Current Record:\n");
+				printf("Question Number: %d\n", questions[numInput - 1].questionNumber);
+				printf("[1] Topic: %s\n", questions[numInput - 1].topic);
+				printf("[2] Question: %s\n", questions[numInput - 1].question);
+				printf("[3] Choice 1: %s\n", questions[numInput - 1].choice1);
+				printf("[4] Choice 2: %s\n", questions[numInput - 1].choice2);
+				printf("[5] Choice 3: %s\n", questions[numInput - 1].choice3);
+				printf("[6] Answer: %s\n", questions[numInput - 1].answer);
+
+				while (editInput > 8 || editInput < 1){
+					printf(">> ");
+					scanf("%d", &editInput);
+					switch(editInput){
+						case 1:
+							printf("Input New [Topic]: ");
+							getStrInput(questions[numInput - 1].topic);
+							break;
+						case 2:
+							printf("Input New [Question]: ");
+							getStrInput(questions[numInput - 1].question);
+							break;
+						case 3:
+							printf("Input New [Choice 1]: ");
+							getStrInput(questions[numInput - 1].choice1);
+							break;
+						case 4:
+							printf("Input New [Choice 2]: ");
+							getStrInput(questions[numInput - 1].choice2);
+							break;
+						case 5:
+							printf("Input New [Choice 3]: ");
+							getStrInput(questions[numInput - 3].choice3);
+							break;
+						case 6:
+							printf("Input New [Answer]: ");
+							getStrInput(questions[numInput - 1].answer);
+							break;
+						default:
+							break;
+					}
+					green(); printf("Changes Saved!"); reset();
+				}
+
+
+			}
+
+			/* If it does not exist, prompt the user to enter a valid input again;
+				second conditional is to prevent error message from appearing if user wants to exit */
+			else if (exists == 0 && input[0] != '1'){
+				red(); printf("Invalid Input!\n"); reset();
+			}
+		}
+	}
+
+	// If total questions are 0, an error message will be shown
+	else{
+		red(); printf("No questions found!\n"); reset();
+	}
 };
 
 void deleteRecord(questionData questions[MAX_QUESTIONS]){
 
 };
 
+// Sorts a string array in alphabetical order, this function uses the Bubble sort algorithm butfor strings (uses strcpy instead of assignment operations)
+void sortTopics(string20 topics[], int size){
 
+	string20 temp;
+	int i, j;
+
+    for (i = 0; i < size - 1; i++) {
+        for (j = i + 1; j < size; j++) {
+            if (strcmp(topics[i], topics[j]) > 0) {
+                strcpy(temp, topics[i]);
+                strcpy(topics[i], topics[j]);
+                strcpy(topics[j], temp);
+            }
+        }
+    }
+
+}
+
+// Function that scans an integer array, returns 1 if int val is in array, returns 0 if not
+int isInArray(int arr[], int val, int size){
+
+	int i;
+	for (i = 0; i < size; i++){
+		if (arr[i] == val){
+			return 1;
+		}
+	}
+	return 0;
+
+}
 
 /* ================================ */
 
