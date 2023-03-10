@@ -536,7 +536,7 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 
 			// Gets user input, will be case sensitive
 			printf(">> ");
-			scanf("%s", input);
+			scanf(" %[^\n]s", input);
 			exists = 0;
 
 			// This loop will scan the topicsData array if the input exists
@@ -563,7 +563,7 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 
 				int k = 0;
 
-				printf("Question Numbers Associated with the Topic:\n"); 
+				printf("\nQuestion Numbers Associated with the Topic:\n"); 
 
 				// Looks through the questions struct array for the question numbers associated with the inputted topic and stores them in the validNums array
 				for (i = 0; i < *totalQuestions; i++){
@@ -584,7 +584,7 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 
 				// TODO: FIX THIS
 				int editInput = 0;
-				printf("Current Record:\n");
+				green(); printf("\nCurrent Record:\n"); reset();
 				printf("Question Number: %d\n", questions[numInput - 1].questionNumber);
 				printf("[1] Topic: %s\n", questions[numInput - 1].topic);
 				printf("[2] Question: %s\n", questions[numInput - 1].question);
@@ -592,50 +592,51 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 				printf("[4] Choice 2: %s\n", questions[numInput - 1].choice2);
 				printf("[5] Choice 3: %s\n", questions[numInput - 1].choice3);
 				printf("[6] Answer: %s\n", questions[numInput - 1].answer);
-				printf("[7] Exit");
+				printf("[7] Exit\n");
 
 				while (editInput != 7){
 					printf(">> ");
 					scanf("%d", &editInput);
+					printf("\n");
 					switch(editInput){
 						case 1:
 							printf("Input New [Topic]: ");
-							scanf("%s", questions[numInput - 1].topic);
+							scanf(" %[^\n]s", questions[numInput - 1].topic);
 							green(); printf("\nChanges Saved!\n"); reset();
 							editInput = 7;
 							input[0] = '1';
 							break;
 						case 2:
 							printf("Input New [Question]: ");
-							getStrInput(questions[numInput - 1].question);
+							scanf(" %[^\n]s", questions[numInput - 1].question);
 							green(); printf("\nChanges Saved!\n"); reset();
 							editInput = 7;
 							input[0] = '1';
 							break;
 						case 3:
 							printf("Input New [Choice 1]: ");
-							getStrInput(questions[numInput - 1].choice1);
+							scanf(" %[^\n]s", questions[numInput - 1].choice1);
 							green(); printf("\nChanges Saved!\n"); reset();
 							editInput = 7;
 							input[0] = '1';
 							break;
 						case 4:
 							printf("Input New [Choice 2]: ");
-							getStrInput(questions[numInput - 1].choice2);
+							scanf(" %[^\n]s", questions[numInput - 1].choice2);
 							green(); printf("\nChanges Saved!\n"); reset();
 							editInput = 7;
 							input[0] = '1';
 							break;
 						case 5:
 							printf("Input New [Choice 3]: ");
-							getStrInput(questions[numInput - 3].choice3);
+							scanf(" %[^\n]s", questions[numInput - 3].choice3);
 							green(); printf("\nChanges Saved!\n"); reset();
 							editInput = 7;
 							input[0] = '1';
 							break;
 						case 6:
 							printf("Input New [Answer]: ");
-							getStrInput(questions[numInput - 1].answer);
+							scanf(" %[^\n]s", questions[numInput - 1].answer);
 							green(); printf("\nChanges Saved!\n"); reset();
 							editInput = 7;
 							input[0] = '1';
@@ -643,7 +644,7 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 						case 7:
 							break;
 						default:
-							printf("Invalid input!");
+							red(); printf("Invalid input!"); reset();
 							break;
 					}
 				
