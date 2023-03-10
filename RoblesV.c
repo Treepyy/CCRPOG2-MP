@@ -582,7 +582,8 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 					}
 				}
 
-				int editInput;
+				// TODO: FIX THIS
+				int editInput = 0;
 				printf("Current Record:\n");
 				printf("Question Number: %d\n", questions[numInput - 1].questionNumber);
 				printf("[1] Topic: %s\n", questions[numInput - 1].topic);
@@ -591,39 +592,61 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 				printf("[4] Choice 2: %s\n", questions[numInput - 1].choice2);
 				printf("[5] Choice 3: %s\n", questions[numInput - 1].choice3);
 				printf("[6] Answer: %s\n", questions[numInput - 1].answer);
+				printf("[7] Exit");
 
-				while (editInput > 8 || editInput < 1){
+				while (editInput != 7){
 					printf(">> ");
 					scanf("%d", &editInput);
 					switch(editInput){
 						case 1:
 							printf("Input New [Topic]: ");
-							getStrInput(questions[numInput - 1].topic);
+							scanf("%s", questions[numInput - 1].topic);
+							green(); printf("\nChanges Saved!\n"); reset();
+							editInput = 7;
+							input[0] = '1';
 							break;
 						case 2:
 							printf("Input New [Question]: ");
 							getStrInput(questions[numInput - 1].question);
+							green(); printf("\nChanges Saved!\n"); reset();
+							editInput = 7;
+							input[0] = '1';
 							break;
 						case 3:
 							printf("Input New [Choice 1]: ");
 							getStrInput(questions[numInput - 1].choice1);
+							green(); printf("\nChanges Saved!\n"); reset();
+							editInput = 7;
+							input[0] = '1';
 							break;
 						case 4:
 							printf("Input New [Choice 2]: ");
 							getStrInput(questions[numInput - 1].choice2);
+							green(); printf("\nChanges Saved!\n"); reset();
+							editInput = 7;
+							input[0] = '1';
 							break;
 						case 5:
 							printf("Input New [Choice 3]: ");
 							getStrInput(questions[numInput - 3].choice3);
+							green(); printf("\nChanges Saved!\n"); reset();
+							editInput = 7;
+							input[0] = '1';
 							break;
 						case 6:
 							printf("Input New [Answer]: ");
 							getStrInput(questions[numInput - 1].answer);
+							green(); printf("\nChanges Saved!\n"); reset();
+							editInput = 7;
+							input[0] = '1';
+							break;
+						case 7:
 							break;
 						default:
+							printf("Invalid input!");
 							break;
 					}
-					green(); printf("Changes Saved!"); reset();
+				
 				}
 
 
