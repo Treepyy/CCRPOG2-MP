@@ -367,8 +367,7 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 
 			case '3':
 				system("cls");
-				deleteRecord();
-				printf("deleteRecord(); \n");
+				deleteRecord(questions, totalQuestions);
 				
 				break;
 
@@ -568,14 +567,14 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 				// Looks through the questions struct array for the question numbers associated with the inputted topic and stores them in the validNums array
 				for (i = 0; i < *totalQuestions; i++){
 					if (strcmp(input, questions[i].topic) == 0){
-						printf("Question #[%d]\n", questions[i].questionNumber);
+						printf("Question #[%d]: %s\n", questions[i].questionNumber, questions[i].question);
 						validNums[k] = questions[i].questionNumber;
 						k++;
 					}
 				}
 
 				while (isInArray(validNums, numInput, topicQns) == 0){
-					printf(">> ");
+					printf("\n>> ");
 					scanf("%d", &numInput);
 					if (isInArray(validNums, numInput, topicQns) == 0){
 						red(); printf("Invalid Input!\n"); reset();
@@ -595,7 +594,7 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 				printf("[7] Exit\n");
 
 				while (editInput != 7){
-					printf(">> ");
+					printf("\n>> ");
 					scanf("%d", &editInput);
 					printf("\n");
 					switch(editInput){
@@ -665,11 +664,147 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 	else{
 		red(); printf("No questions found!\n"); reset();
 	}
-};
+}
 
-void deleteRecord(questionData questions[MAX_QUESTIONS]){
+void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
-};
+	// Increment variables
+	int i, j;
+
+	// Variables for strings (for input and for storing/sorting topics)
+	char input[20];
+	int size = *totalQuestions;
+	string20 topicsData[size];
+
+	// Checking (bool) variables
+	int isUnique, exists;
+
+	// Copies all of the current topics into the topicsData array for local storage
+	for (i = 0; i < size; i++){
+		 strcpy(topicsData[i], questions[i].topic);
+	}
+
+	// Sorts the topics in alphabetical order (Bubble sort)
+	sortTopics(topicsData, *totalQuestions);
+
+	// If total questions is greater than 0, proceed
+	if (*totalQuestions > 0){
+
+		// The while loop will continue until the user enters '1', or a string that starts with '1'
+		while (input[0] != '1'){
+
+			yellow(); printf("Type the Topic of the Question you wish to Delete\nEnter [1] to Go Back"); reset();
+			green(); printf("\n\nAvailable Topics:\n"); reset();
+
+			// This loop will scan the topicsData array for duplicate topics, if the topic is a duplicate and is already displayed, it will skip printing it
+			for (i = 0; i < size; i++) {
+			
+				isUnique = 1;
+			
+				for (j = 0; j < i; j++) {
+					if (strcmp(topicsData[i], topicsData[j]) == 0) {
+						isUnique = 0;
+					}
+				}
+
+				if (isUnique) {
+					printf("%s\n", topicsData[i]);
+				}
+			}
+
+			// Gets user input, will be case sensitive
+			printf("\n>> ");
+			scanf(" %[^\n]s", input);
+			exists = 0;
+
+			// This loop will scan the topicsData array if the input exists
+			for (i = 0; i < *totalQuestions; i++){
+				if (strcmp(input, topicsData[i]) == 0){
+					exists = 1;
+				}
+			}
+
+			// If the input exists, continue
+			if (exists == 1){
+				
+				// Variable for question number input
+				int numInput;
+				
+				// Variable for checking how many Questions a certain topic has
+				int topicQns = 0;
+				for (i = 0; i < *totalQuestions; i++){
+					if (strcmp(input, questions[i].topic) == 0){
+						topicQns++;
+					}
+				}
+				int validNums[topicQns]; 
+
+				int k = 0;
+
+				printf("\nQuestion Numbers Associated with the Topic:\n"); 
+
+				// Looks through the questions struct array for the question numbers associated with the inputted topic and stores them in the validNums array
+				for (i = 0; i < *totalQuestions; i++){
+					if (strcmp(input, questions[i].topic) == 0){
+						printf("Question #[%d]: %s\n", questions[i].questionNumber, questions[i].question);
+						validNums[k] = questions[i].questionNumber;
+						k++;
+					}
+				}
+
+				while (isInArray(validNums, numInput, topicQns) == 0){
+					printf("\n>> ");
+					scanf("%d", &numInput);
+					if (isInArray(validNums, numInput, topicQns) == 0){
+						red(); printf("Invalid Input!\n"); reset();
+					}
+				}
+
+				char delSure;
+				while (delSure != 'Y' && delSure != 'y' && delSure != 'N' && delSure != 'n'){
+					red(); printf("Are you sure you want to DELETE this question? Y/N (This action cannot be undone)\n"); reset();
+					scanf(" %c", &delSure);
+					if (delSure == 'Y' || delSure == 'y'){
+						
+						for (i = numInput - 1; i < size - 1; i++){  
+            				 // assign arr[i+1] to arr[i] using strcpy
+							questions[i].questionNumber = questions[i].questionNumber - 1; 
+							strcpy(questions[i].topic, questions[i+1].topic); 
+							strcpy(questions[i].question, questions[i+1].question);
+							strcpy(questions[i].choice1, questions[i+1].choice1);
+							strcpy(questions[i].choice2, questions[i+1].choice2);
+							strcpy(questions[i].choice3, questions[i+1].choice3);
+							strcpy(questions[i].answer, questions[i+1].answer);
+       					 }  
+						
+						*totalQuestions = *totalQuestions - 1;
+						
+						yellow(); printf("Succesfully deleted.\n"); reset();
+						input[0] = '1';
+					}
+					else{
+						green(); printf("Deletion aborted.\n"); reset();
+					}
+				}
+			}
+
+			/* If it does not exist, prompt the user to enter a valid input again;
+				second conditional is to prevent error message from appearing if user wants to exit */
+			else if (exists == 0 && input[0] != '1'){
+				red(); printf("Invalid Input!\n"); reset();
+			}
+
+
+		}
+
+	}
+
+		// If total questions are 0, an error message will be shown
+	else{
+		red(); printf("No questions found!\n"); reset();
+	}
+
+}
 
 // Sorts a string array in alphabetical order, this function uses the Bubble sort algorithm butfor strings (uses strcpy instead of assignment operations)
 void sortTopics(string20 topics[], int size){
