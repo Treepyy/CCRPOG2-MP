@@ -409,10 +409,10 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 	// The question and answer will be asked for first, the input will be taken using the getStrInput function.
 	printf("Add a question: ");
-	getStrInput(tempQuestion);
+	scanf(" %[^\n]s", tempQuestion);
 
 	printf("Add an answer: ");
-	getStrInput(tempAnswer);
+	scanf(" %[^\n]s", tempAnswer);
 
 	// The questionDuplicate variable will serve as a true or false switch (bool) in order to check if the inputted question and answer pair already exists
 	int questionDuplicate = existingQNACheck(questions, tempQuestion, tempAnswer);
@@ -431,16 +431,16 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 		// Continuation of input calls, this time the inputs are directly stored in the struct
 		printf("Add a topic: ");
-		getStrInput(questions[i].topic);
+		scanf(" %[^\n]s", questions[i].topic);
 
 		printf("Add the first choice: ");
-		getStrInput(questions[i].choice1);
+		scanf(" %[^\n]s", questions[i].choice1);
 
 		printf("Add the second choice: ");
-		getStrInput(questions[i].choice2);
+		scanf(" %[^\n]s", questions[i].choice2);
 
 		printf("Add the third choice: ");
-		getStrInput(questions[i].choice3);
+		scanf(" %[^\n]s", questions[i].choice3);
 
 		// The question number is automatically assigned as the current number of total questions plus one
 		printf("Current input is Question #%d\n", *totalQuestions+1);
@@ -766,17 +766,37 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 					scanf(" %c", &delSure);
 					if (delSure == 'Y' || delSure == 'y'){
 						
-						for (i = numInput - 1; i < size - 1; i++){  
-            				 // assign arr[i+1] to arr[i] using strcpy
-							questions[i].questionNumber = questions[i].questionNumber - 1; 
-							strcpy(questions[i].topic, questions[i+1].topic); 
-							strcpy(questions[i].question, questions[i+1].question);
-							strcpy(questions[i].choice1, questions[i+1].choice1);
-							strcpy(questions[i].choice2, questions[i+1].choice2);
-							strcpy(questions[i].choice3, questions[i+1].choice3);
-							strcpy(questions[i].answer, questions[i+1].answer);
-       					 }  
+						/* If total questions are greater than one, the questions struct array will shift by 1 backwards 
+						   until the gap left by the deleted record are all filled */
 						
+						if (*totalQuestions > 1){
+							for (i = numInput - 1; i < size - 1; i++){  
+	            				 // assign arr[i+1] to arr[i] using strcpy and equivalnce for the question number
+
+								questions[i].questionNumber = questions[i+1].questionNumber; 
+								strcpy(questions[i].topic, questions[i+1].topic); 
+								strcpy(questions[i].question, questions[i+1].question);
+								strcpy(questions[i].choice1, questions[i+1].choice1);
+								strcpy(questions[i].choice2, questions[i+1].choice2);
+								strcpy(questions[i].choice3, questions[i+1].choice3);
+								strcpy(questions[i].answer, questions[i+1].answer);
+	       					 }  
+						}
+						
+						/* Else, if there is only one question, and the user wants to delete it, all elements will be returned to null
+						   by copying all elements of the index next to it. */
+						   
+						else{ // Bug 01: question number can underflow to 0
+								i = numInput - 1;
+								questions[i].questionNumber = questions[i+1].questionNumber;
+								strcpy(questions[i].topic, questions[i+1].topic); 
+								strcpy(questions[i].question, questions[i+1].question);
+								strcpy(questions[i].choice1, questions[i+1].choice1);
+								strcpy(questions[i].choice2, questions[i+1].choice2);
+								strcpy(questions[i].choice3, questions[i+1].choice3);
+								strcpy(questions[i].answer, questions[i+1].answer);
+							
+						}
 						*totalQuestions = *totalQuestions - 1;
 						
 						yellow(); printf("Succesfully deleted.\n"); reset();
