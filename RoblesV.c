@@ -62,6 +62,7 @@ void exportData();
 int existingQNACheck();
 void sortTopics();
 int isInArray();
+int getHighest();
 
 /* ================================ */
 // Text Coloring Functions
@@ -143,25 +144,22 @@ void getPwdStrInput(char string[]){
 	}while (i < MAX_LENGTH && ch != '\n');
 }
 
-/*
-// Prototype function for password functionality with hidden input using scanf
-void passwordInput(){
+
+// Function that scans through an integer array and returns the highest integer
+int getHighest(int arr[], int size){
 
 	// Variable declarations
 	int i;
-    int active = 1;
-    char input;
+	int max = 0;
 
-	pwd passwordInput;
-	pwd correctPassword = "password69";
-
-	while (active == 1){
-		printf("Enter your password: ");
-		getShortStrInput(passwordInput);
-
+	for (i = 0; i < size; i++){
+		if(arr[i] > arr[max]){
+			max = i;
+		}
 	}
+
+	return arr[max];
 }
-*/
 
 // Prototype function for password functionality with hidden input using getch
 void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions){
@@ -402,7 +400,16 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 	// The increment variable 'i' is initialized to the total number of questions, which at the start of the program is always set to 0
-	int i = *totalQuestions;
+	// Increment variable j is used in the for loop to store question numbers
+	int i = *totalQuestions, j;
+
+	// Variables for handling question number allocation
+	int tempQnNumber, highest;
+	int currentQnNumbers[i];
+	for (j = 0; j < *totalQuestions; j++){
+		// This loop will store all current question numbers to the local array
+		currentQnNumbers[j] = questions[j].questionNumber;
+	}
 
 	string150 tempQuestion;
 	string30 tempAnswer;
@@ -442,12 +449,23 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 		printf("Add the third choice: ");
 		scanf(" %[^\n]s", questions[i].choice3);
 
-		// The question number is automatically assigned as the current number of total questions plus one
-		printf("Current input is Question #%d\n", *totalQuestions+1);
-		questions[i].questionNumber = *totalQuestions + 1;
+		// The question number is automatically assigned;
+		if (*totalQuestions > 0){ // If there are more than 0 questions
+			// Question number for the added record will be the HIGHEST existing question number + 1
+			highest = getHighest(currentQnNumbers, *totalQuestions);
+			tempQnNumber = highest + 1;
+		}
+		else if (*totalQuestions == 0){
+			// Else, the question number will be 1
+			tempQnNumber = 1;
+		}
+		questions[i].questionNumber = tempQnNumber;
+		printf("Current input is Question #%d\n", tempQnNumber);
+		
 
 		// Once the add record is successful, the totalQuestions variable in main will be incremented by one
 		*totalQuestions = *totalQuestions + 1;
+		//printf("\nTotal Questions: %d\n", *totalQuestions);
 	}
 }
 
@@ -773,7 +791,7 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 							for (i = numInput - 1; i < size - 1; i++){  
 	            				 // assign arr[i+1] to arr[i] using strcpy and equivalnce for the question number
 
-								questions[i].questionNumber = questions[i+1].questionNumber; 
+								questions[i].questionNumber = questions[i+1].questionNumber - 1; 
 								strcpy(questions[i].topic, questions[i+1].topic); 
 								strcpy(questions[i].question, questions[i+1].question);
 								strcpy(questions[i].choice1, questions[i+1].choice1);
@@ -804,6 +822,7 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 					}
 					else{
 						green(); printf("Deletion aborted.\n"); reset();
+						input[0] = '1';
 					}
 				}
 			}
