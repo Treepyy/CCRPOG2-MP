@@ -933,6 +933,7 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 			*totalQuestions = *totalQuestions + i;
 
 			// After the loop is complete, prints a success message and exits the menu
+			fclose(fp);
 			green(); printf("Import Complete!\n"); reset();
 			press = '1';
 
@@ -977,6 +978,8 @@ void exportData(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 			fprintf(fp, "%s", "\n");
 		}
 	}
+
+	fclose(fp);
 	green(); printf("Export complete!\n"); reset();
 
 }
