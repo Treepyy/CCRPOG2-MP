@@ -6,6 +6,12 @@ otherwise plagiarized the work of other students and/or persons.
 																	Vance Gyan M. Robles, DLSU ID#12279560
 *********************************************************************************************************/
 
+	/* TO DO:
+		- FIX AUTOMATIC NUMBERING v2 (SHOULD BE SEPARATE FOR EACH TOPIC, NOT UNIVERSAL) APPLICABLE TO MANUAL ADDING OF RECORD ONLY
+		- FIX DELETE FUNCTION TO ACCOUNT FOR NEW NUMBERING
+		- FIX EDIT FUNCTION TO ACCOUNT FOR NEW NUMBERING
+
+	*/
 
 #include <stdio.h>
 #include <windows.h>
@@ -371,13 +377,13 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 
 			case '4':
 				system("cls");
-				printf("importData(); \n");
+				importData(questions, totalQuestions);
 				
 				break;
 
 			case '5':
 				system("cls");
-				printf("exportData(); \n");
+				exportData(questions, totalQuestions);
 				
 				break;
 			
@@ -875,6 +881,106 @@ int isInArray(int arr[], int val, int size){
 	return 0;
 
 }
+
+void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions){
+
+	// Increment variable
+	int i = *totalQuestions;
+	//int j;
+
+	// File variable declaration
+	FILE *fp;
+	
+	// Input variables
+	char press;
+	string30 input;
+	
+	while (press != '1'){
+		
+		green(); printf("Enter File Name (exclude .txt): "); reset();
+		scanf(" %[^\n]s", input);
+		strcat(input, ".txt");
+		// Reads from inputted txt file, stores into questions array;
+		fp = fopen(input, "r");
+
+		// If file does not exist, print error message and option to retry
+		if (fp == NULL){
+			red(); printf("\nFile not found!\n"); reset();
+			yellow(); printf("Press [1] to return to the previous menu\nPress any key to try again\n"); reset();
+			press = _getch();
+			
+		}
+
+		// If file exits, importing will start
+		else{
+		
+			// Scans the file for each number until the end of file is reached, then stores them into array data
+			while (
+					fscanf(fp, " %[^\n]s", questions[i].topic) != EOF &&
+			        fscanf(fp, " %d", &questions[i].questionNumber) != EOF &&
+			        fscanf(fp, " %[^\n]s", questions[i].question) != EOF &&
+					fscanf(fp, " %[^\n]s", questions[i].choice1) != EOF &&
+					fscanf(fp, " %[^\n]s", questions[i].choice2) != EOF &&
+					fscanf(fp, " %[^\n]s", questions[i].choice3) != EOF &&
+					fscanf(fp, " %[^\n]s", questions[i].answer) != EOF	
+				){
+
+				// i will be the total number of questions read from the file	
+				i++;
+			}
+			
+			// The total questions read from the file will be added to the tally of total questions
+			*totalQuestions = *totalQuestions + i;
+
+			// After the loop is complete, prints a success message and exits the menu
+			green(); printf("Import Complete!\n"); reset();
+			press = '1';
+
+			/*
+			for (j = 0; j < i; j++){
+				printf("%s\n", questions[j].topic);
+				printf("%d\n", questions[j].questionNumber);
+				printf("%s\n", questions[j].question);
+				printf("%s\n", questions[j].choice1);
+				printf("%s\n", questions[j].choice2);
+				printf("%s\n", questions[j].choice3);
+				printf("%s\n", questions[j].answer);
+				
+				printf("\n");
+			}*/
+		}
+	}
+
+
+}
+
+void exportData(questionData questions[MAX_QUESTIONS], int* totalQuestions){
+
+	int i;
+	FILE *fp;
+	string30 input;
+
+	green(); printf("Enter File Name (exclude .txt): "); reset();
+	scanf(" %[^\n]s", input);
+	strcat(input, ".txt");
+	// Stores struct array info into the given text file;
+	fp = fopen(input, "w");
+	for (i = 0; i < *totalQuestions; i++){
+		fprintf(fp, "%s%s", questions[i].topic, "\n");
+		fprintf(fp, "%d%s", questions[i].questionNumber, "\n");
+		fprintf(fp, "%s%s", questions[i].question, "\n");
+		fprintf(fp, "%s%s", questions[i].choice1, "\n");
+		fprintf(fp, "%s%s", questions[i].choice2, "\n");
+		fprintf(fp, "%s%s", questions[i].choice3, "\n");
+		fprintf(fp, "%s%s", questions[i].answer, "\n");
+		if (i != *totalQuestions - 1){
+			fprintf(fp, "%s", "\n");
+		}
+	}
+	green(); printf("Export complete!\n"); reset();
+
+}
+
 
 /* ================================ */
 
