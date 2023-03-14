@@ -69,6 +69,7 @@ int existingQNACheck();
 void sortTopics();
 int isInArray();
 int getHighest();
+void sortQuestions();
 
 /* ================================ */
 // Text Coloring Functions
@@ -165,6 +166,46 @@ int getHighest(int arr[], int size){
 	}
 
 	return arr[max];
+}
+
+// Function that sorts an array of question structs based on topic, then question number, using bubble sort
+void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
+    int i, j, k, l;
+	int size = totalQuestions;
+    questionData temp;
+    
+    // Sort based on topic in alphabetical order
+    for (i = 0; i < size - 1; i++) {
+        for (j = i + 1; j < size; j++) {
+            if (strcmp(questions[i].topic, questions[j].topic) > 0) {
+                // Swaps the two questions
+                temp = questions[i];
+                questions[i] = questions[j];
+                questions[j] = temp;
+            }
+        }
+    }
+    
+    // Sort based on question number in increasing order (within each topic group)
+    i = 0;
+    while (i < size) {
+        j = i;
+        while (j < size && strcmp(questions[i].topic, questions[j].topic) == 0) {
+            j++;
+        }
+        // Sort the questions with the same topic from i to j-1
+        for (k = i; k < j - 1; k++) {
+            for (l = k + 1; l < j; l++) {
+                if (questions[k].questionNumber > questions[l].questionNumber) {
+                    // Swaps the two questions
+                    temp = questions[k];
+                    questions[k] = questions[l];
+                    questions[l] = temp;
+                }
+            }
+        }
+        i = j;
+    }
 }
 
 // Prototype function for password functionality with hidden input using getch
@@ -348,6 +389,7 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions){
 
 	char input;
+	int j;
 	
 	while (input != '6'){
 		displayAdminMenu();
@@ -391,6 +433,19 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 				system("cls");
 				break;
 			
+			case '7': // Prints the entire questions struct (debugging)
+				for (j = 0; j < *totalQuestions; j++){
+					printf("%s\n", questions[j].topic);
+					printf("%d\n", questions[j].questionNumber);
+					printf("%s\n", questions[j].question);
+					printf("%s\n", questions[j].choice1);
+					printf("%s\n", questions[j].choice2);
+					printf("%s\n", questions[j].choice3);
+					printf("%s\n", questions[j].answer);
+					
+					printf("\n");
+				}
+				break;
 			default: 
 				// If the input is not within the given parameters, 'invalid input' will be displayed and the main menu will be shown again.
 				system("cls");
@@ -410,15 +465,19 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 	int i = *totalQuestions, j;
 
 	// Variables for handling question number allocation
-	int tempQnNumber, highest;
+	int tempQnNumber = 1;
+	// int highest;
+
+	/*
 	int currentQnNumbers[i];
 	for (j = 0; j < *totalQuestions; j++){
 		// This loop will store all current question numbers to the local array
 		currentQnNumbers[j] = questions[j].questionNumber;
-	}
+	}*/
 
 	string150 tempQuestion;
 	string30 tempAnswer;
+	string20 tempTopic;
 
 	// The question and answer will be asked for first, the input will be taken using the getStrInput function.
 	printf("Add a question: ");
@@ -444,7 +503,14 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 		// Continuation of input calls, this time the inputs are directly stored in the struct
 		printf("Add a topic: ");
-		scanf(" %[^\n]s", questions[i].topic);
+		scanf(" %[^\n]s", tempTopic);
+		for (j = 0; j < *totalQuestions; j++){
+			if (strcmp(tempTopic, questions[j].topic) == 0){
+				tempQnNumber++;
+			}
+		}
+		strcpy(questions[j].topic, tempTopic);
+		questions[i].questionNumber = tempQnNumber;
 
 		printf("Add the first choice: ");
 		scanf(" %[^\n]s", questions[i].choice1);
@@ -454,8 +520,8 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 		printf("Add the third choice: ");
 		scanf(" %[^\n]s", questions[i].choice3);
-
-		// The question number is automatically assigned;
+		/*
+		// UNUSED:: The question number is automatically assigned;
 		if (*totalQuestions > 0){ // If there are more than 0 questions
 			// Question number for the added record will be the HIGHEST existing question number + 1
 			highest = getHighest(currentQnNumbers, *totalQuestions);
@@ -464,15 +530,18 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 		else if (*totalQuestions == 0){
 			// Else, the question number will be 1
 			tempQnNumber = 1;
-		}
-		questions[i].questionNumber = tempQnNumber;
-		printf("Current input is Question #%d\n", tempQnNumber);
+		}*/
+		
+		printf("Current input is Question #%d of topic \"%s\"\n", tempQnNumber, tempTopic);
 		
 
 		// Once the add record is successful, the totalQuestions variable in main will be incremented by one
 		*totalQuestions = *totalQuestions + 1;
-		//printf("\nTotal Questions: %d\n", *totalQuestions);
+		printf("\nTotal Questions: %d\n", *totalQuestions);
 	}
+
+	// The struct array is sorted at the end of the function
+	sortQuestions(questions, *totalQuestions);
 }
 
 // This fucntion checks if a question-answer pair already exists within the struct
@@ -933,6 +1002,10 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 			*totalQuestions = *totalQuestions + i;
 
 			// After the loop is complete, prints a success message and exits the menu
+
+			// The struct array is sorted at the end of the function
+			sortQuestions(questions, *totalQuestions);
+
 			fclose(fp);
 			green(); printf("Import Complete!\n"); reset();
 			press = '1';

@@ -1,99 +1,3 @@
-Geography
-1
-Which country features a shipwreck on its national flag?
-Vanuatu
-Bermuda
-Croatia
-Bermuda
-
-Geography
-2
-What country has the highest life expectancy?
-Japan
-HongKong
-Philippines
-HongKong
-
-Geography
-3
-The great Victoria Desert is located in
-Canada
-Africa
-Australia
-Australia
-
-Geography
-4
-Which of the following is not a kharif crop?
-Jute
-Mustard
-Maize
-Mustard
-
-Geography
-5
-The luminous coloured ring, surrounding the sun is called the
-corona
-nebula
-comet
-corona
-
-Technology
-1
-What is the part of a database that holds only one type of information?
-Report
-File
-Field
-Field
-
-Technology
-2
-In which decade with the first transatlantic radio broadcast occur?
-1880s
-1890s
-1900s
-1900s
-
-Technology
-3
-Blue is what number on the resistor color code?
-5
-6
-7
-6
-
-Sports
-1
-Track and field star Carl Lewis won how many gold medals at the 1984 Olympic games?
-Three
-Four
-Five
-Four
-
-Personalities
-1
-Who is the father of Geometry?
-Euclid
-Pythagoras
-Kepler
-Euclid
-
-Personalities
-2
-Who believed that leaking a bucket of ice water out on his head before composing music stimulates brain activity?
-Beethoven
-Handel
-List
-Beethoven
-
-Personalities
-3
-Whose real name is Norma Jean Mortenson?
-Madonna
-LadyGaga
-MarilynMonroe
-MarilynMonroe
-
 Animal
 1
 How many hearts does an octopus have?
@@ -149,3 +53,99 @@ Ant
 Butterfly
 Wasp
 Wasp
+
+Geography
+1
+Which country features a shipwreck on its national flag?
+Vanuatu
+Bermuda
+Croatia
+Bermuda
+
+Geography
+2
+What country has the highest life expectancy?
+Japan
+HongKong
+Philippines
+HongKong
+
+Geography
+3
+The great Victoria Desert is located in
+Canada
+Africa
+Australia
+Australia
+
+Geography
+4
+Which of the following is not a kharif crop?
+Jute
+Mustard
+Maize
+Mustard
+
+Geography
+5
+The luminous coloured ring, surrounding the sun is called the
+corona
+nebula
+comet
+corona
+
+Personalities
+1
+Who is the father of Geometry?
+Euclid
+Pythagoras
+Kepler
+Euclid
+
+Personalities
+2
+Who believed that leaking a bucket of ice water out on his head before composing music stimulates brain activity?
+Beethoven
+Handel
+List
+Beethoven
+
+Personalities
+3
+Whose real name is Norma Jean Mortenson?
+Madonna
+LadyGaga
+MarilynMonroe
+MarilynMonroe
+
+Sports
+1
+Track and field star Carl Lewis won how many gold medals at the 1984 Olympic games?
+Three
+Four
+Five
+Four
+
+Technology
+1
+What is the part of a database that holds only one type of information?
+Report
+File
+Field
+Field
+
+Technology
+2
+In which decade with the first transatlantic radio broadcast occur?
+1880s
+1890s
+1900s
+1900s
+
+Technology
+3
+Blue is what number on the resistor color code?
+5
+6
+7
+6
