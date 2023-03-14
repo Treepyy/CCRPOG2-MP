@@ -7,11 +7,15 @@ otherwise plagiarized the work of other students and/or persons.
 *********************************************************************************************************/
 
 	/* TO DO:
-		- FIX EDIT FUNCTION TO ACCOUNT FOR NEW NUMBERING
+		- QUIZ GAME PROPER
+		- RANDOMIZE QUESTIONS
+		- ACCUMULATE SCORE
 
 	   Done:
 		- FIX AUTOMATIC NUMBERING v2 (SHOULD BE SEPARATE FOR EACH TOPIC, NOT UNIVERSAL) APPLICABLE TO MANUAL ADDING OF RECORD ONLY
 		- FIX DELETE FUNCTION TO ACCOUNT FOR NEW NUMBERING
+		- FIX EDIT FUNCTION TO ACCOUNT FOR NEW NUMBERING
+		- IMPORT, EXPORT, VIEW SCORES
 
 
 	*/
