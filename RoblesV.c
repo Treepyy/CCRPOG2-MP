@@ -7,9 +7,12 @@ otherwise plagiarized the work of other students and/or persons.
 *********************************************************************************************************/
 
 	/* TO DO:
+		- FIX EDIT FUNCTION TO ACCOUNT FOR NEW NUMBERING
+
+	   Done:
 		- FIX AUTOMATIC NUMBERING v2 (SHOULD BE SEPARATE FOR EACH TOPIC, NOT UNIVERSAL) APPLICABLE TO MANUAL ADDING OF RECORD ONLY
 		- FIX DELETE FUNCTION TO ACCOUNT FOR NEW NUMBERING
-		- FIX EDIT FUNCTION TO ACCOUNT FOR NEW NUMBERING
+
 
 	*/
 
@@ -830,25 +833,26 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 						topicQns++;
 					}
 				}
+				
 				int validNums[topicQns]; 
 
 				int k = 0;
 
 				printf("\nQuestion Numbers Associated with the Topic:\n"); 
 
-				// Looks through the questions struct array for the question numbers associated with the inputted topic and stores them in the validNums array
+				// Looks through the questions struct array for the question index associated with the inputted topic and stores them in the validNums array
 				for (i = 0; i < *totalQuestions; i++){
 					if (strcmp(input, questions[i].topic) == 0){
 						printf("Question #[%d]: %s\n", questions[i].questionNumber, questions[i].question);
-						validNums[k] = questions[i].questionNumber;
+						validNums[k] = i;
 						k++;
 					}
 				}
 
-				while (isInArray(validNums, numInput, topicQns) == 0){
+				while (numInput > topicQns || numInput < 1){
 					printf("\n>> ");
 					scanf("%d", &numInput);
-					if (isInArray(validNums, numInput, topicQns) == 0){
+					if (numInput > topicQns || numInput < 1){
 						red(); printf("Invalid Input!\n"); reset();
 					}
 				}
@@ -857,16 +861,33 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 				while (delSure != 'Y' && delSure != 'y' && delSure != 'N' && delSure != 'n'){
 					red(); printf("Are you sure you want to DELETE this question? Y/N (This action cannot be undone)\n"); reset();
 					scanf(" %c", &delSure);
-					if (delSure == 'Y' || delSure == 'y'){
+					if (delSure == 'Y' || delSure == 'y'){ // if user inputs 'Y' the deletion will continue
 						
 						/* If total questions are greater than one, the questions struct array will shift by 1 backwards 
 						   until the gap left by the deleted record are all filled */
 						
 						if (*totalQuestions > 1){
-							for (i = numInput - 1; i < size - 1; i++){  
-	            				 // assign arr[i+1] to arr[i] using strcpy and equivalnce for the question number
+							// Starting increment of the for loop will be index of the item to be deleted in the array
+							for (i = validNums[numInput - 1]; i < *totalQuestions; i++){  
 
-								questions[i].questionNumber = questions[i+1].questionNumber - 1; 
+	            				 // assign arr[i+1] to arr[i] using strcpy and equivalnce for the question number
+								 // if current iteration is within the range of topics;
+								if (strcmp(questions[i].topic, input) == 0){
+									// if iteration has reached the end of the topics, qn number will be set to 1
+									if (strcmp(questions[i+1].topic, input) != 0 ){
+										questions[i].questionNumber = 1;
+									}
+									// else, continue with shifting to the left but also subtract 1 to fill in for the deleted number
+									else{
+										questions[i].questionNumber = questions[i+1].questionNumber - 1; 
+									}
+								}
+								// if current iteration is not within the range of topics, question number will just shift to the left
+								else{
+									questions[i].questionNumber = questions[i+1].questionNumber; 
+								}
+									
+								// for the rest of the struct elements, all will shift to the left
 								strcpy(questions[i].topic, questions[i+1].topic); 
 								strcpy(questions[i].question, questions[i+1].question);
 								strcpy(questions[i].choice1, questions[i+1].choice1);
@@ -890,19 +911,20 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 								strcpy(questions[i].answer, questions[i+1].answer);
 							
 						}
+						// Total questions will be decremented by 1 after deletion.
 						*totalQuestions = *totalQuestions - 1;
 						
 						yellow(); printf("Succesfully deleted.\n"); reset();
 						input[0] = '1';
 					}
-					else{
+					else{ // if user types 'N' or any other input deletion will be aborted
 						green(); printf("Deletion aborted.\n"); reset();
 						input[0] = '1';
 					}
 				}
 			}
 
-			/* If it does not exist, prompt the user to enter a valid input again;
+			/* If topic input not exist, prompt the user to enter a valid input again;
 				second conditional is to prevent error message from appearing if user wants to exit */
 			else if (exists == 0 && input[0] != '1'){
 				red(); printf("Invalid Input!\n"); reset();
