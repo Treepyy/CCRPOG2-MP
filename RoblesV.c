@@ -212,7 +212,7 @@ void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
 }
 
 // Prototype function for password functionality with hidden input using getch
-void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions){
+void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int* totalPlayers){
 	
 	// Variable declarations
 
@@ -266,7 +266,7 @@ void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players
 	    	green(); printf("\nWelcome!\n"); reset();
 	    	Sleep(2000);
 	    	system("cls");
-	    	adminPanel(questions, players, totalQuestions);
+	    	adminPanel(questions, players, totalQuestions, totalPlayers);
 	    	active = 0;
 	    	
 		}
@@ -349,7 +349,7 @@ void displayPlayMenu(){
 }
 
 // Function that handles inputs for the Play menu
-void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS]){
+void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions){
 	
 	char input;
 	
@@ -362,13 +362,13 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 			
 			case '1':
 				system("cls");
-				printf("playGame();\n");
+				playGame(players, questions, totalPlayers, totalQuestions);
 				
 				break;
 				
 			case '2':
 				system("cls");
-				printf("viewScores(); \n");
+				viewScores(players, totalPlayers);
 				
 				break;
 				
@@ -388,8 +388,76 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 	
 }
 
+// Function for playing the quiz game
+void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions){
+
+	int i = *totalPlayers;
+	int score = 0;
+	int isAnswered[MAX_QUESTIONS] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	string20 input;
+
+	if (*totalQuestions < 1){
+		red(); printf("No questions found!\n"); reset();
+	}
+
+	else{
+		yellow(); printf("Enter Your Name: "); reset();
+		scanf(" %[^\n]s", players[i].name);
+		green(); printf("Welcome %s!\n\n", players[i].name); reset();
+
+		*totalPlayers = *totalPlayers + 1;
+
+		printf("Select a topic\n");
+		printf(">> ");
+		scanf(" %[^\n]s", input);
+
+		
+	}
+
+
+
+}
+
+// Function that sorts the playerData struct array based on scores
+void sortScores(playerData players[MAX_PLAYERS], int size){
+
+	int i, j;
+    playerData temp;
+    
+    // Sorts based on score in descending order
+    for (i = 0; i < size - 1; i++) {
+        for (j = i + 1; j < size; j++) {
+            if (players[j].score > players[i].score) {
+                // Swap the two questions
+                temp = players[i];
+                players[i] = players[j];
+                players[j] = temp;
+            }
+        }
+    }
+
+}
+
+// Function for the 'View Scores' option that displays all saved player scores
+void viewScores(playerData players[MAX_PLAYERS], int* totalPlayers){
+
+	int i;
+	sortScores(players, *totalPlayers);
+	printf("+======+======================+=======+\n");
+	printf("|             Leaderboard             |\n");
+	printf("+======+======================+=======+\n");
+	printf("| Rank |         Name         | Score |\n");
+	printf("+------+----------------------+-------+\n");
+	for (i = 0; i < *totalPlayers; i++){
+		printf("|%-6d|%-22s|%-7d|\n", i + 1, players[i].name, players[i].score);
+		printf("+------+----------------------+-------+\n");
+	}
+	printf("\n");
+
+}
+
 // Function that handles inputs for the Manage Data menu
-void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions){
+void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int *totalPlayers){
 
 	char input;
 	int j;
@@ -422,13 +490,13 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 
 			case '4':
 				system("cls");
-				importData(questions, totalQuestions);
+				importData(questions, totalQuestions, players, totalPlayers);
 				
 				break;
 
 			case '5':
 				system("cls");
-				exportData(questions, totalQuestions);
+				exportData(questions, totalQuestions, players, totalPlayers);
 				
 				break;
 			
@@ -448,6 +516,8 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 					
 					printf("\n");
 				}
+				printf("Total Questions: %d\n", *totalQuestions);
+
 				break;
 			default: 
 				// If the input is not within the given parameters, 'invalid input' will be displayed and the main menu will be shown again.
@@ -977,97 +1047,224 @@ int isInArray(int arr[], int val, int size){
 
 }
 
-void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions){
+// Function for importing data from a file (either player data or questions)
+void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, playerData players[MAX_PLAYERS], int *totalPlayers){
 
 	// Increment variable
-	int i = *totalQuestions;
+	int i;
 	//int j;
 
 	// File variable declaration
 	FILE *fp;
 	
 	// Input variables
+	char selection;
 	char press;
 	string30 input;
-	
-	while (press != '1'){
-		
-		green(); printf("Enter File Name (exclude .txt): "); reset();
-		scanf(" %[^\n]s", input);
-		strcat(input, ".txt");
-		// Reads from inputted txt file, stores into questions array;
-		fp = fopen(input, "r");
 
-		// If file does not exist, print error message and option to retry
-		if (fp == NULL){
-			red(); printf("\nFile not found!\n"); reset();
-			yellow(); printf("Press [1] to return to the previous menu\nPress any key to try again\n"); reset();
-			press = _getch();
-			
+	while (selection != '3'){
+
+		yellow(); printf("Select Which Data to Import\n"); reset();
+		printf("[1] Questions Data\n");
+		printf("[2] Player Data\n");
+		printf("[3] Exit\n");
+
+		selection = _getch();
+		if (selection > '3' || selection < '1'){
+			system("cls");
+			red(); printf("Invalid input!\n\n"); reset();
 		}
 
-		// If file exits, importing will start
-		else{
-		
-			// Scans the file for each number until the end of file is reached, then stores them into array data
-			while (
-					fscanf(fp, " %[^\n]s", questions[i].topic) != EOF &&
-			        fscanf(fp, " %d", &questions[i].questionNumber) != EOF &&
-			        fscanf(fp, " %[^\n]s", questions[i].question) != EOF &&
-					fscanf(fp, " %[^\n]s", questions[i].choice1) != EOF &&
-					fscanf(fp, " %[^\n]s", questions[i].choice2) != EOF &&
-					fscanf(fp, " %[^\n]s", questions[i].choice3) != EOF &&
-					fscanf(fp, " %[^\n]s", questions[i].answer) != EOF	
-				){
+		switch(selection){
 
-				// i will be the total number of questions read from the file	
-				i++;
-			}
+			case '1':
+				i = *totalQuestions;
+				while (press != '1'){
+					
+					green(); printf("Enter File Name (exclude .txt): "); reset();
+					scanf(" %[^\n]s", input);
+					strcat(input, ".txt");
+					// Reads from inputted txt file, stores into questions array;
+					fp = fopen(input, "r");
+
+					// If file does not exist, print error message and option to retry
+					if (fp == NULL){
+						red(); printf("\nFile not found!\n"); reset();
+						yellow(); printf("Press [1] to return to the previous menu\nPress any key to try again\n"); reset();
+						press = _getch();
+						
+					}
+
+					// If file exits, importing will start
+					else{
+					
+						// Scans the file for each number until the end of file is reached, then stores them into array data
+						while (
+								fscanf(fp, " %[^\n]s", questions[i].topic) != EOF &&
+								fscanf(fp, " %d", &questions[i].questionNumber) != EOF &&
+								fscanf(fp, " %[^\n]s", questions[i].question) != EOF &&
+								fscanf(fp, " %[^\n]s", questions[i].choice1) != EOF &&
+								fscanf(fp, " %[^\n]s", questions[i].choice2) != EOF &&
+								fscanf(fp, " %[^\n]s", questions[i].choice3) != EOF &&
+								fscanf(fp, " %[^\n]s", questions[i].answer) != EOF	
+							){
+
+							// i will be the total number of questions read from the file	
+							i++;
+						}
+						
+						// The total questions read from the file will be added to the tally of total questions
+						*totalQuestions = *totalQuestions + i;
+
+						// After the loop is complete, prints a success message and exits the menu
+
+						// The struct array is sorted at the end of the function
+						sortQuestions(questions, *totalQuestions);
+
+						fclose(fp);
+						green(); printf("Import Complete!\n"); reset();
+						press = '1';
+						selection = '3';
+						
+					}
+				}
+				break;
 			
-			// The total questions read from the file will be added to the tally of total questions
-			*totalQuestions = *totalQuestions + i;
+			case '2':
+				i = *totalPlayers;
+				while (press != '1'){
+					
+					green(); printf("Enter File Name (exclude .txt): "); reset();
+					scanf(" %[^\n]s", input);
+					strcat(input, ".txt");
+					// Reads from inputted txt file, stores into questions array;
+					fp = fopen(input, "r");
 
-			// After the loop is complete, prints a success message and exits the menu
+					// If file does not exist, print error message and option to retry
+					if (fp == NULL){
+						red(); printf("\nFile not found!\n"); reset();
+						yellow(); printf("Press [1] to return to the previous menu\nPress any key to try again\n"); reset();
+						press = _getch();
+						
+					}
 
-			// The struct array is sorted at the end of the function
-			sortQuestions(questions, *totalQuestions);
+					// If file exits, importing will start
+					else{
+					
+						// Scans the file for each number until the end of file is reached, then stores them into array data
+						while (
+								fscanf(fp, " %[^\n]s", players[i].name) != EOF &&
+								fscanf(fp, " %d", &players[i].score) != EOF 
+							){
 
-			fclose(fp);
-			green(); printf("Import Complete!\n"); reset();
-			press = '1';
+							// i will be the total number of questions read from the file	
+							i++;
+						}
+						
+						// The total questions read from the file will be added to the tally of total questions
+						*totalPlayers = *totalPlayers + i;
+
+						// After the loop is complete, prints a success message and exits the menu
+
+						// The struct array is sorted at the end of the function
+						sortScores(players, *totalPlayers);
+
+						fclose(fp);
+						green(); printf("Import Complete!\n"); reset();
+						press = '1';
+						selection = '3';
+						
+					}
+				}
 			
+				break;
+
+			case '3':
+				system("cls");
+				break;
 		}
+
 	}
-
-
 }
 
-void exportData(questionData questions[MAX_QUESTIONS], int* totalQuestions){
+// Function for exporting data to a file (either player data or questions)
+void exportData(questionData questions[MAX_QUESTIONS], int* totalQuestions, playerData players[MAX_PLAYERS], int *totalPlayers){
 
+	// Increment variable
 	int i;
+	//int j;
+
+	// File variable declaration
 	FILE *fp;
+	
+	// Input variables
+	char selection;
 	string30 input;
 
-	green(); printf("Enter File Name (exclude .txt): "); reset();
-	scanf(" %[^\n]s", input);
-	strcat(input, ".txt");
-	// Stores struct array info into the given text file;
-	fp = fopen(input, "w");
-	for (i = 0; i < *totalQuestions; i++){
-		fprintf(fp, "%s%s", questions[i].topic, "\n");
-		fprintf(fp, "%d%s", questions[i].questionNumber, "\n");
-		fprintf(fp, "%s%s", questions[i].question, "\n");
-		fprintf(fp, "%s%s", questions[i].choice1, "\n");
-		fprintf(fp, "%s%s", questions[i].choice2, "\n");
-		fprintf(fp, "%s%s", questions[i].choice3, "\n");
-		fprintf(fp, "%s%s", questions[i].answer, "\n");
-		if (i != *totalQuestions - 1){
-			fprintf(fp, "%s", "\n");
-		}
-	}
+	while (selection != '3'){
 
-	fclose(fp);
-	green(); printf("Export complete!\n"); reset();
+		yellow(); printf("Select Which Data to Export\n"); reset();
+		printf("[1] Questions Data\n");
+		printf("[2] Player Data\n");
+		printf("[3] Exit\n");
+
+		selection = _getch();
+		if (selection > '3' || selection < '1'){
+			system("cls");
+			red(); printf("Invalid input!\n\n"); reset();
+		}
+
+		switch(selection){
+
+			case '1':
+				green(); printf("Enter File Name (exclude .txt): "); reset();
+	            scanf(" %[^\n]s", input);
+            	strcat(input, ".txt");
+            	// Stores struct array info into the given text file;
+            	fp = fopen(input, "w");
+            	for (i = 0; i < *totalQuestions; i++){
+            		fprintf(fp, "%s%s", questions[i].topic, "\n");
+            		fprintf(fp, "%d%s", questions[i].questionNumber, "\n");
+            		fprintf(fp, "%s%s", questions[i].question, "\n");
+            		fprintf(fp, "%s%s", questions[i].choice1, "\n");
+            		fprintf(fp, "%s%s", questions[i].choice2, "\n");
+            		fprintf(fp, "%s%s", questions[i].choice3, "\n");
+            		fprintf(fp, "%s%s", questions[i].answer, "\n");
+            		if (i != *totalQuestions - 1){
+            			fprintf(fp, "%s", "\n");
+            		}
+            	}
+
+            	fclose(fp);
+            	green(); printf("Export complete!\n"); reset();
+            	selection = '3';
+				break;
+			
+			case '2':
+				green(); printf("Enter File Name (exclude .txt): "); reset();
+	            scanf(" %[^\n]s", input);
+            	strcat(input, ".txt");
+            	// Stores struct array info into the given text file;
+            	fp = fopen(input, "w");
+            	for (i = 0; i < *totalPlayers; i++){
+            		fprintf(fp, "%s%s", players[i].name, "\n");
+            		fprintf(fp, "%d%s", players[i].score, "\n");
+            		if (i != *totalPlayers - 1){
+            			fprintf(fp, "%s", "\n");
+            		}
+            	}
+
+            	fclose(fp);
+            	green(); printf("Export complete!\n"); reset();
+            	selection = '3';
+				break;
+
+			case '3':
+				system("cls");
+				break;
+		}
+
+	}
 
 }
 
@@ -1092,13 +1289,13 @@ int main(){
 			
 			case '1':
 				system("cls");
-				playPanel(questions, players);
+				playPanel(questions, players, &totalPlayers, &totalQuestions);
 		
 				break;
 				
 			case '2':
 				system("cls");
-				passwordPrototype(questions, players, &totalQuestions);
+				passwordPrototype(questions, players, &totalQuestions, &totalPlayers);
 				
 				break;
 				
