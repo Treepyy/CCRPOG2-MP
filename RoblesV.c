@@ -7,11 +7,16 @@ otherwise plagiarized the work of other students and/or persons.
 *********************************************************************************************************/
 
 	/* TO DO:
-		- QUIZ GAME PROPER
-		- RANDOMIZE QUESTIONS
-		- ACCUMULATE SCORE
+		- CLEANUP
+		- REPLACE MANUAL DISPLAY TOPICS IN ADMIN FUCNTIONS WITH 'displayTopics()' FUNCTION
+		- OPTIMIZE RANDOMIZER
+		- TEST SCRIPT
+		- PARAMETERS IN COMMENTS
 
 	   Done:
+	   	- QUIZ GAME PROPER
+		- RANDOMIZE QUESTIONS
+		- ACCUMULATE SCORE
 		- FIX AUTOMATIC NUMBERING v2 (SHOULD BE SEPARATE FOR EACH TOPIC, NOT UNIVERSAL) APPLICABLE TO MANUAL ADDING OF RECORD ONLY
 		- FIX DELETE FUNCTION TO ACCOUNT FOR NEW NUMBERING
 		- FIX EDIT FUNCTION TO ACCOUNT FOR NEW NUMBERING
@@ -77,6 +82,7 @@ void sortTopics();
 int isInArray();
 int getHighest();
 void sortQuestions();
+int genRandInt();
 
 /* ================================ */
 // Text Coloring Functions
@@ -366,7 +372,7 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 			
 			case '1':
 				system("cls");
-				playGame(players, questions, totalPlayers, totalQuestions);
+				playGame(questions, players, totalPlayers, totalQuestions);
 				
 				break;
 				
@@ -392,30 +398,231 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 	
 }
 
+// Function for generating a random integer between a set range
+int genRandInt(int min, int max){
+
+	// The random number generator is seeded with the current time;
+	srand(time(NULL)); 
+
+	// The function returns a random number in the range [min, max]
+    return min + rand() % (max - min + 1); 
+}
+
+void displayTopics(questionData questions[MAX_QUESTIONS], int *totalQuestions){
+
+	int i, j, isUnique;
+	int size = *totalQuestions;
+
+	green(); printf("Available Topics:\n"); reset();
+	for (i = 0; i < size; i++) {
+			
+		isUnique = 1;
+			
+		for (j = 0; j < i; j++) {
+			if (strcmp(questions[i].topic, questions[j].topic) == 0) {
+				isUnique = 0;
+			}
+		}
+
+		if (isUnique) {
+			printf("%s\n", questions[i].topic);
+		}
+	}
+
+
+}
+
 // Function for playing the quiz game
 void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions){
+	
+	// increment variables
+	int i = *totalPlayers, j;
 
-	int i = *totalPlayers;
-	int score = 0;
-	int isAnswered[MAX_QUESTIONS] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	// variable for score, for determining game over, and to store randomly generated int
+	int score = 0, over = 0, current;
+
+	// variable for checking if inputted topic exists
+	int exists;
+
+	// variable for user input of topic
 	string20 input;
 
+	// variable for user input of answer choice, and temporary storage of user's answer string
+	char choice;
+	string30 tempAns;
+
+	// array of bool ints to determine if a question at a certain index has already been answered
+	int isAnswered[MAX_QUESTIONS];
+	// all current questions will be set to isAnswered[j] = 0 (false) at the start
+	for (j = 0; j < *totalQuestions; j++){
+		isAnswered[j] = 0;
+	}
+	
+	// array to store valid indexes of questions within a topic
+	int validQns[MAX_QUESTIONS];
+	// counting variables for answered questions, total questions in a topic, and total unanswered questions in a topic
+	int totalAnswered = 0, totalTopic, totalTopicUnanswered;
+
+	// if totalQuestions in main is 0, show an error message
 	if (*totalQuestions < 1){
 		red(); printf("No questions found!\n"); reset();
 	}
-
+	// else, continue
 	else{
+
+		green(); printf("Questions found!\n"); reset();
+		// asks player to input their name
 		yellow(); printf("Enter Your Name: "); reset();
 		scanf(" %[^\n]s", players[i].name);
-		green(); printf("Welcome %s!\n\n", players[i].name); reset();
+		green(); printf("Welcome [%s]!\n", players[i].name); reset();
 
-		*totalPlayers = *totalPlayers + 1;
+		//*totalPlayers = *totalPlayers + 1;
 
-		printf("Select a topic\n");
-		printf(">> ");
-		scanf(" %[^\n]s", input);
+		// the loop will continue until the game is over (over == 1)
+		while (over != 1){
+			
+			// initialized to 0
+			exists = 0;
 
-		
+			// keeps asking user for topic input until a valid topic has been entered
+			while (exists == 0){
+
+				printf("Current Score: ");
+				green(); printf("%d\n", score);
+				yellow(); printf("\nType the Topic to Answer From\n"); reset();
+				displayTopics(questions, totalQuestions);
+
+				printf("\nSelect a Topic\n");
+				printf(">> ");
+				scanf(" %[^\n]s", input);
+			
+				// scans the topic of all questions, if input has been found within the struct array, exists will be set to 1 and loop will terminate
+				for (j = 0; j < *totalQuestions; j++){
+					if (strcmp(input, questions[j].topic) == 0){
+						exists = 1;
+					}
+				}
+
+				// else, prints an error message
+				if (exists == 0){
+					system("cls");
+					red(); fprintf(stderr, "Invalid topic!\n"); reset();
+				}
+			}
+
+			printf("Total Questions Answered: %d\n", totalAnswered);
+
+			// total topics will be initialized to 0
+			totalTopic = 0;
+
+			// the struct array will be scanned for topics which matches the input;
+			// if found, the index of the struct with that topic will be stored in validQns, and totalTopic will be incremented
+			for (j = 0; j < *totalQuestions; j++){
+				if (strcmp(input, questions[j].topic) == 0){
+					validQns[totalTopic] = j;
+					totalTopic++;
+				}
+			}
+			printf("Total Number of Questions in Topic: %d\n", totalTopic);
+			
+			// total unanswered questions in a certain topic will be initialized to 0;
+			// if the corresponding isAnswered value of a valid question is 0, total unanswered will be incremented
+			totalTopicUnanswered = 0;
+			for (j = 0; j < totalTopic; j++){
+				if (isAnswered[validQns[j]] == 0){
+					totalTopicUnanswered++;
+				}
+			}
+
+			// if total unanswered questions reaches 0, an error message will be shown and the user will be redirected to choose another topic
+			if (totalTopicUnanswered == 0){
+				system("cls");
+				red(); printf("No more unanswered questions in this topic!\nPlease select another topic.\n"); reset();
+			}
+
+			// else, continue;
+			else{
+				printf("Total Number of Unanswered in Topic: %d\n", totalTopicUnanswered);
+
+				// current will be a random integer from 0 to (totalTopic - 1) inclusive;
+				// this range will generate an index for accessing validQns
+				// then, the corresponding value from validQns[current] will be used as the index for the question to be played
+				current = genRandInt(0, totalTopic - 1);
+
+				// if the randomly generated index is already answered, randomize will reroll until an unanswered question's index is found
+				while (isAnswered[validQns[current]] == 1){
+					current = genRandInt(0, totalTopic - 1);
+				}
+				printf("Random Number: %d\n", validQns[current]);
+				// prints the current question data and presents the user with a choice
+				printf("%s\n[1] %s\n[2] %s\n[3] %s\n[4] Quit\n", questions[validQns[current]].question, questions[validQns[current]].choice1, questions[validQns[current]].choice2, questions[validQns[current]].choice3);
+				printf(">> ");
+
+				// choice will be set to '0' as a buffer
+				choice = '0';
+
+				// continually asks user for input until a valid input has been chosen (from '1' to '4')
+				// '1' will be choice1 and so on, '4' will be an option to quit the game from the current question
+				while (choice > '4' || choice < '1'){
+					scanf(" %c", &choice);
+					switch (choice){
+						case '1':
+							strcpy(tempAns, questions[validQns[current]].choice1);
+							break;
+						case '2':
+							strcpy(tempAns, questions[validQns[current]].choice2);
+							break;
+						case '3':
+							strcpy(tempAns, questions[validQns[current]].choice3);
+							break;
+						case '4':
+							over = 1;
+							system("cls");
+							printf("Final Score: ");
+							green(); printf("%d\n", score); reset();
+							players[i].score = score;
+							*totalPlayers = *totalPlayers + 1; // totalPlayers will be incremented once a session is complete
+							break;
+						default:
+							red(); printf("Invalid Input!"); reset();
+							break;
+					}
+				}
+
+				// if tempAns matches the .answer of the currennt question, score will be incremented
+				if (strcmp(tempAns, questions[validQns[current]].answer) == 0){
+					system("cls");
+					green(); printf("Correct Answer!\n"); reset();
+					score++;
+				}
+
+				// else, prints a fail message
+				else{
+					if (over != 1){
+						system("cls");
+						red(); printf("Incorrect Answer!\n"); reset();
+					}
+						
+				}
+
+				// the current question's isAnswered value will be set to 1 (true) so that it will not be chosen for the next time
+				isAnswered[validQns[current]] = 1;
+
+				// value for total answered question will be incremented
+				totalAnswered++;
+
+				// if the total number of answered questions is equal to the total number of questions,
+				// the game will automatically be over and the final score will be displayed
+				if (totalAnswered == *totalQuestions){
+					over = 1;
+					printf("All questions answered.\nFinal Score: %d\n", score);
+					players[i].score = score;
+					*totalPlayers = *totalPlayers + 1; // totalPlayers will be incremented once a session is complete
+				}
+
+				// user is redirected back to choosing a topic at the end if the condition for ending the game is not met
+			}
+		}
 	}
 
 
