@@ -8,13 +8,13 @@ otherwise plagiarized the work of other students and/or persons.
 
 	/* TO DO:
 		- CLEANUP
-		- FIX QUESTION NUMBER REASSIGNMENT FOR EDIT RECORD
 		- REMOVE UNUSED FUNCTIONS
 		- OPTIMIZE RANDOMIZER
 		- TEST SCRIPT
 		- PARAMETERS IN COMMENTS
 
 	   Done:
+	    - FIX QUESTION NUMBER REASSIGNMENT FOR EDIT RECORD
 	    - REPLACED MANUAL DISPLAY TOPICS IN ADMIN FUCNTIONS WITH 'displayTopics()' FUNCTION
 	   	- QUIZ GAME PROPER
 		- RANDOMIZE QUESTIONS
@@ -943,7 +943,6 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 							scanf(" %[^\n]s", tempTopic);
 
 							// Reassignment of question number if the topic was edited
-							// TODO: Fix qn number decrementation on topics that already exist when a topic is edited out
 							int tempQnNumber = 1;
 							for (i = 0; i < *totalQuestions; i++){
 								if (strcmp(tempTopic, questions[i].topic) == 0){
@@ -952,8 +951,25 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 							}
 							questions[validNums[numInput - 1]].questionNumber = tempQnNumber;
 							strcpy(questions[ validNums[numInput - 1] ].topic, tempTopic);
-							
 
+							// Re-assignment of question numbers of other records in the topic to account for the gap if topic was changed
+							topicQns = 0;
+							for (i = 0; i < *totalQuestions; i++){
+								if (strcmp(input, questions[i].topic) == 0){
+									topicQns++;
+								}
+							}
+							k = 0;
+							for (i = 0; i < *totalQuestions; i++){
+								if (strcmp(input, questions[i].topic) == 0){
+									validNums[k] = i;
+									k++;
+								}
+							}
+							for (i = 0; i < topicQns; i++){
+								questions[validNums[i]].questionNumber = i + 1;
+							}
+							
 							green(); printf("\nChanges Saved!\n"); reset();
 							editInput = 7;
 							input[0] = '1';
@@ -1002,6 +1018,8 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 				
 				}
 
+
+
 				// Re-sorts the questions array if needed
 				sortQuestions(questions, *totalQuestions);
 
@@ -1020,6 +1038,8 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 	else{
 		red(); printf("No questions found!\n"); reset();
 	}
+
+
 }
 
 void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
