@@ -8,12 +8,14 @@ otherwise plagiarized the work of other students and/or persons.
 
 	/* TO DO:
 		- CLEANUP
-		- REPLACE MANUAL DISPLAY TOPICS IN ADMIN FUCNTIONS WITH 'displayTopics()' FUNCTION
+		- FIX QUESTION NUMBER REASSIGNMENT FOR EDIT RECORD
+		- REMOVE UNUSED FUNCTIONS
 		- OPTIMIZE RANDOMIZER
 		- TEST SCRIPT
 		- PARAMETERS IN COMMENTS
 
 	   Done:
+	    - REPLACED MANUAL DISPLAY TOPICS IN ADMIN FUCNTIONS WITH 'displayTopics()' FUNCTION
 	   	- QUIZ GAME PROPER
 		- RANDOMIZE QUESTIONS
 		- ACCUMULATE SCORE
@@ -249,6 +251,7 @@ void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players
 			// If the input is the enter key, the current index will be set to NULL and the loop will terminate
 	        if (input == ENTER){
 	        	passwordInput[i] = '\0';
+				putchar('\b');
 	            i = TERMINATE;
 			} 
 
@@ -750,14 +753,6 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 	// Variables for handling question number allocation
 	int tempQnNumber = 1;
-	// int highest;
-
-	/*
-	int currentQnNumbers[i];
-	for (j = 0; j < *totalQuestions; j++){
-		// This loop will store all current question numbers to the local array
-		currentQnNumbers[j] = questions[j].questionNumber;
-	}*/
 
 	string150 tempQuestion;
 	string30 tempAnswer;
@@ -804,17 +799,6 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 		printf("Add the third choice: ");
 		scanf(" %[^\n]s", questions[i].choice3);
-		/*
-		// UNUSED:: The question number is automatically assigned;
-		if (*totalQuestions > 0){ // If there are more than 0 questions
-			// Question number for the added record will be the HIGHEST existing question number + 1
-			highest = getHighest(currentQnNumbers, *totalQuestions);
-			tempQnNumber = highest + 1;
-		}
-		else if (*totalQuestions == 0){
-			// Else, the question number will be 1
-			tempQnNumber = 1;
-		}*/
 		
 		printf("Current input is Question #%d of topic \"%s\"\n", tempQnNumber, tempTopic);
 		
@@ -867,23 +851,14 @@ int existingQNACheck(questionData questions[MAX_QUESTIONS], string150 addedQn, s
 void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 
 	// Increment variables
-	int i, j;
+	int i;
 
 	// Variables for strings (for input and for storing/sorting topics)
 	char input[20];
-	int size = *totalQuestions;
-	string20 topicsData[size];
+	string20 tempTopic;
 
 	// Checking (bool) variables
-	int isUnique, exists;
-
-	// Copies all of the current topics into the topicsData array for local storage
-	for (i = 0; i < size; i++){
-		 strcpy(topicsData[i], questions[i].topic);
-	}
-
-	// Sorts the topics in alphabetical order (Bubble sort)
-	sortTopics(topicsData, *totalQuestions);
+	int exists;
 
 	// If total questions is greater than 0, proceed
 	if (*totalQuestions > 0){
@@ -891,33 +866,17 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 		// The while loop will continue until the user enters '1', or a string that starts with '1'
 		while (input[0] != '1'){
 
-			yellow(); printf("Type the Topic to Edit\nEnter [1] to Go Back"); reset();
-			green(); printf("\n\nAvailable Topics:\n"); reset();
-
-			// This loop will scan the topicsData array for duplicate topics, if the topic is a duplicate and is already displayed, it will skip printing it
-			for (i = 0; i < size; i++) {
-			
-				isUnique = 1;
-			
-				for (j = 0; j < i; j++) {
-					if (strcmp(topicsData[i], topicsData[j]) == 0) {
-						isUnique = 0;
-					}
-				}
-
-				if (isUnique) {
-					printf("%s\n", topicsData[i]);
-				}
-			}
+			yellow(); printf("Type the Topic to Edit\nEnter [1] to Go Back\n"); reset();
+			displayTopics(questions, totalQuestions);
 
 			// Gets user input, will be case sensitive
 			printf(">> ");
 			scanf(" %[^\n]s", input);
 			exists = 0;
 
-			// This loop will scan the topicsData array if the input exists
+			// This loop will scan the topics of the struct array if the input exists
 			for (i = 0; i < *totalQuestions; i++){
-				if (strcmp(input, topicsData[i]) == 0){
+				if (strcmp(input, questions[i].topic) == 0){
 					exists = 1;
 				}
 			}
@@ -979,8 +938,22 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 					printf("\n");
 					switch(editInput){
 						case 1:
+							
 							printf("Input New [Topic]: ");
-							scanf(" %[^\n]s", questions[ validNums[numInput - 1] ].topic);
+							scanf(" %[^\n]s", tempTopic);
+
+							// Reassignment of question number if the topic was edited
+							// TODO: Fix qn number decrementation on topics that already exist when a topic is edited out
+							int tempQnNumber = 1;
+							for (i = 0; i < *totalQuestions; i++){
+								if (strcmp(tempTopic, questions[i].topic) == 0){
+									tempQnNumber++;
+								}
+							}
+							questions[validNums[numInput - 1]].questionNumber = tempQnNumber;
+							strcpy(questions[ validNums[numInput - 1] ].topic, tempTopic);
+							
+
 							green(); printf("\nChanges Saved!\n"); reset();
 							editInput = 7;
 							input[0] = '1';
@@ -1029,6 +1002,9 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 				
 				}
 
+				// Re-sorts the questions array if needed
+				sortQuestions(questions, *totalQuestions);
+
 
 			}
 
@@ -1049,23 +1025,13 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 	// Increment variables
-	int i, j;
+	int i;
 
 	// Variables for strings (for input and for storing/sorting topics)
 	char input[20];
-	int size = *totalQuestions;
-	string20 topicsData[size];
 
 	// Checking (bool) variables
-	int isUnique, exists;
-
-	// Copies all of the current topics into the topicsData array for local storage
-	for (i = 0; i < size; i++){
-		 strcpy(topicsData[i], questions[i].topic);
-	}
-
-	// Sorts the topics in alphabetical order (Bubble sort)
-	sortTopics(topicsData, *totalQuestions);
+	int exists;
 
 	// If total questions is greater than 0, proceed
 	if (*totalQuestions > 0){
@@ -1073,33 +1039,17 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 		// The while loop will continue until the user enters '1', or a string that starts with '1'
 		while (input[0] != '1'){
 
-			yellow(); printf("Type the Topic of the Question you wish to Delete\nEnter [1] to Go Back"); reset();
-			green(); printf("\n\nAvailable Topics:\n"); reset();
-
-			// This loop will scan the topicsData array for duplicate topics, if the topic is a duplicate and is already displayed, it will skip printing it
-			for (i = 0; i < size; i++) {
-			
-				isUnique = 1;
-			
-				for (j = 0; j < i; j++) {
-					if (strcmp(topicsData[i], topicsData[j]) == 0) {
-						isUnique = 0;
-					}
-				}
-
-				if (isUnique) {
-					printf("%s\n", topicsData[i]);
-				}
-			}
+			yellow(); printf("Type the Topic of the Question you wish to Delete\nEnter [1] to Go Back\n"); reset();
+			displayTopics(questions, totalQuestions);
 
 			// Gets user input, will be case sensitive
 			printf("\n>> ");
 			scanf(" %[^\n]s", input);
 			exists = 0;
 
-			// This loop will scan the topicsData array if the input exists
+			// This loop will scan the questions struct array for topics if the input exists
 			for (i = 0; i < *totalQuestions; i++){
-				if (strcmp(input, topicsData[i]) == 0){
+				if (strcmp(input, questions[i].topic) == 0){
 					exists = 1;
 				}
 			}
@@ -1185,7 +1135,7 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 						/* Else, if there is only one question, and the user wants to delete it, all elements will be returned to null
 						   by copying all elements of the index next to it. */
 						   
-						else{ // Bug 01: question number can underflow to 0
+						else{ 
 								i = numInput - 1;
 								questions[i].questionNumber = questions[i+1].questionNumber;
 								strcpy(questions[i].topic, questions[i+1].topic); 
