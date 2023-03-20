@@ -35,8 +35,8 @@ otherwise plagiarized the work of other students and/or persons.
 #include <string.h>
 
 #define MAX_LENGTH 33
-#define MAX_PLAYERS 10
-#define MAX_QUESTIONS 30
+#define MAX_PLAYERS 50
+#define MAX_QUESTIONS 50
 #define MAX_SENTENCE 151
 #define TERMINATE MAX_LENGTH
 #define ENTER 13
@@ -367,6 +367,7 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 	char input;
 	FILE *fp;
 
+	// The scores.txt file will be opened again but in append mode to add new score record if another instance of the game is played
 	fp = fopen("scores.txt", "a");
 	
 	while (input != '3'){
@@ -402,6 +403,7 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 		}
 	}
 
+	// Once the user exits out of this menu, the file will close and changes will be saved
 	fclose(fp);
 	
 }
@@ -584,7 +586,7 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 						case '3':
 							strcpy(tempAns, questions[validQns[current]].choice3);
 							break;
-						case '4':
+						case '4': // Case for player quitting the game preemptively
 							over = 1;
 							system("cls");
 							printf("Final Score: ");
@@ -592,6 +594,7 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 							players[i].score = score;
 							*totalPlayers = *totalPlayers + 1; // totalPlayers will be incremented once a session is complete
 
+							// Appends the current score data to scores.txt
 							fseek(fp, 0, SEEK_END);
 							if (ftell(fp) == 0){
 								fprintf(fp, "%s\n", players[i].name);
@@ -640,7 +643,8 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 					red(); printf("%d\n", score); reset();
 					players[i].score = score;
 					*totalPlayers = *totalPlayers + 1; // totalPlayers will be incremented once a session is complete
-					
+
+					// Appends the current score data to scores.txt
 					fseek(fp, 0, SEEK_END);
 					if (ftell(fp) == 0){
 						fprintf(fp, "%s\n", players[i].name);
@@ -652,7 +656,7 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 					}
 				}
 
-				// user is redirected back to choosing a topic at the end if the condition for ending the game is not met
+				// user is redirected back to choosing a topic at the end if a condition for ending the game is not met
 			}
 		}
 	}
@@ -1262,10 +1266,13 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 
 	// Increment variable
 	int i;
-	//int j;
+	int j, k;
 
 	// File variable declaration
 	FILE *fp;
+	FILE *fpd; // scores.txt
+
+	fpd = fopen("scores.txt", "a");
 	
 	// Input variables
 	char selection;
@@ -1342,6 +1349,7 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 			
 			case '2':
 				i = *totalPlayers;
+				j = 0;
 				while (press != '1'){
 					
 					green(); printf("Enter File Name (exclude .txt): "); reset();
@@ -1367,12 +1375,26 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 								fscanf(fp, " %d", &players[i].score) != EOF 
 							){
 
-							// i will be the total number of questions read from the file	
+							// i will be the total number of players after reading	
 							i++;
+							// j will be the number of scores read from the current file
+							j++;
 						}
-						
+
+						// Appends the current data to scores.txt
+						fseek(fpd, 0, SEEK_END);
+						for (k = *totalPlayers; k < i; k++){
+							if (ftell(fpd) == 0){
+								fprintf(fpd, "%s\n", players[k].name);
+								fprintf(fpd, "%d", players[k].score);
+							}
+							else{
+								fprintf(fpd, "\n\n%s\n", players[k].name);
+								fprintf(fpd, "%d", players[k].score);
+							}
+						}
 						// The total questions read from the file will be added to the tally of total questions
-						*totalPlayers = *totalPlayers + i;
+						*totalPlayers = i;
 
 						// After the loop is complete, prints a success message and exits the menu
 
@@ -1380,6 +1402,7 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 						sortScores(players, *totalPlayers);
 
 						fclose(fp);
+						fclose(fpd);
 						green(); printf("Import Complete!\n"); reset();
 						press = '1';
 						selection = '3';
@@ -1488,6 +1511,21 @@ int main(){
 	int totalQuestions = 0, totalPlayers = 0;
 	questionData questions[MAX_QUESTIONS];
 	playerData players[MAX_PLAYERS];
+
+	// This block will open the scores.txt file and store all information into the playerData struct array
+	FILE *fp;
+	int i = 0;
+	fp = fopen("scores.txt", "r");
+	while (
+		fscanf(fp, " %[^\n]s", players[i].name) != EOF &&
+		fscanf(fp, " %d", &players[i].score) != EOF 
+		){
+
+		// i will be the total number of player data read from the file	
+		i++;
+	}
+	totalPlayers = i; // totalPlayers will be equal to i
+	fclose(fp);
 
 	while (input != '3'){
 		
