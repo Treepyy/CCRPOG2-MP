@@ -365,6 +365,9 @@ void displayPlayMenu(){
 void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions){
 	
 	char input;
+	FILE *fp;
+
+	fp = fopen("scores.txt", "a");
 	
 	while (input != '3'){
 		displayPlayMenu();
@@ -375,13 +378,13 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 			
 			case '1':
 				system("cls");
-				playGame(questions, players, totalPlayers, totalQuestions);
+				playGame(questions, players, totalPlayers, totalQuestions, fp);
 				
 				break;
 				
 			case '2':
 				system("cls");
-				viewScores(players, totalPlayers);
+				viewScores(players, totalPlayers, fp);
 				
 				break;
 				
@@ -398,6 +401,8 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 				
 		}
 	}
+
+	fclose(fp);
 	
 }
 
@@ -436,7 +441,7 @@ void displayTopics(questionData questions[MAX_QUESTIONS], int *totalQuestions){
 }
 
 // Function for playing the quiz game
-void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions){
+void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions, FILE *fp){
 	
 	// increment variables
 	int i = *totalPlayers, j;
@@ -554,11 +559,12 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 
 				// if the randomly generated index is already answered, randomize will reroll until an unanswered question's index is found
 				while (isAnswered[validQns[current]] == 1){
+					yellow(); printf("Randomizing...\r"); reset();
 					current = genRandInt(0, totalTopic - 1);
 				}
 				printf("Random Number: %d\n", validQns[current]);
 				// prints the current question data and presents the user with a choice
-				printf("%s\n[1] %s\n[2] %s\n[3] %s\n[4] Quit\n", questions[validQns[current]].question, questions[validQns[current]].choice1, questions[validQns[current]].choice2, questions[validQns[current]].choice3);
+				printf("%s\n[1] %s\n[2] %s\n[3] %s\n[4] End Game\n", questions[validQns[current]].question, questions[validQns[current]].choice1, questions[validQns[current]].choice2, questions[validQns[current]].choice3);
 				printf(">> ");
 
 				// choice will be set to '0' as a buffer
@@ -585,6 +591,17 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 							green(); printf("%d\n", score); reset();
 							players[i].score = score;
 							*totalPlayers = *totalPlayers + 1; // totalPlayers will be incremented once a session is complete
+
+							fseek(fp, 0, SEEK_END);
+							if (ftell(fp) == 0){
+								fprintf(fp, "%s\n", players[i].name);
+								fprintf(fp, "%d", players[i].score);
+							}
+							else{
+								fprintf(fp, "\n\n%s\n", players[i].name);
+								fprintf(fp, "%d", players[i].score);
+							}
+
 							break;
 						default:
 							red(); printf("Invalid Input!"); reset();
@@ -618,9 +635,21 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 				// the game will automatically be over and the final score will be displayed
 				if (totalAnswered == *totalQuestions){
 					over = 1;
-					printf("All questions answered.\nFinal Score: %d\n", score);
+					yellow(); printf("All questions answered.\n"); reset();
+					printf("Final Score: ");
+					red(); printf("%d\n", score); reset();
 					players[i].score = score;
 					*totalPlayers = *totalPlayers + 1; // totalPlayers will be incremented once a session is complete
+					
+					fseek(fp, 0, SEEK_END);
+					if (ftell(fp) == 0){
+						fprintf(fp, "%s\n", players[i].name);
+						fprintf(fp, "%d", players[i].score);
+					}
+					else{
+						fprintf(fp, "\n\n%s\n", players[i].name);
+						fprintf(fp, "%d", players[i].score);
+					}
 				}
 
 				// user is redirected back to choosing a topic at the end if the condition for ending the game is not met
@@ -653,7 +682,7 @@ void sortScores(playerData players[MAX_PLAYERS], int size){
 }
 
 // Function for the 'View Scores' option that displays all saved player scores
-void viewScores(playerData players[MAX_PLAYERS], int* totalPlayers){
+void viewScores(playerData players[MAX_PLAYERS], int* totalPlayers, FILE *fp){
 
 	int i;
 	sortScores(players, *totalPlayers);
