@@ -224,7 +224,7 @@ void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
 }
 
 // Prototype function for password functionality with hidden input using getch
-void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int* totalPlayers){
+void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int* totalPlayers, pwd correctPassword){
 	
 	// Variable declarations
 
@@ -232,7 +232,6 @@ void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players
      char input;
      char exit = '\0';
      pwd passwordInput;
-     pwd correctPassword = "password69";
      
      while (active == 1){
 		
@@ -1511,6 +1510,7 @@ int main(){
 	int totalQuestions = 0, totalPlayers = 0;
 	questionData questions[MAX_QUESTIONS];
 	playerData players[MAX_PLAYERS];
+	pwd correctPassword = "password69"; // correct password for admin panel
 
 	// This block will open the scores.txt file and store all information into the playerData struct array
 	FILE *fp;
@@ -1543,7 +1543,7 @@ int main(){
 				
 			case '2':
 				system("cls");
-				passwordPrototype(questions, players, &totalQuestions, &totalPlayers);
+				passwordPrototype(questions, players, &totalQuestions, &totalPlayers, correctPassword);
 				
 				break;
 				
