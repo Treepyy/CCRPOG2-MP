@@ -275,9 +275,8 @@ void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players
 	    // Conditionals to check if inputted password is the same as the correct password
 		// If the passwords are the same, the user will be redirected to the admin panel.
 	    if (strcmp(passwordInput, correctPassword) == 0){
-	    	green(); printf("\nWelcome!\n"); reset();
-	    	Sleep(2000);
 	    	system("cls");
+			green(); printf("        Welcome!\n\n"); reset();
 	    	adminPanel(questions, players, totalQuestions, totalPlayers);
 	    	active = 0;
 	    	
@@ -289,15 +288,7 @@ void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players
 			
 			exit = _getch();
 			if (exit == '1'){
-				
-				system("cls");
-				yellow(); printf("Returning to Main Menu"); 
-				Sleep(500); printf(".");
-				Sleep(500); printf(".");
-				Sleep(500); printf(".");
-				Sleep(300);
-				reset();
-				
+
 				system("cls");
 				active = 0;
 			}
@@ -790,7 +781,7 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 	string30 tempAnswer;
 	string20 tempTopic;
 
-	// The question and answer will be asked for first, the input will be taken using the getStrInput function.
+	// The question and answer will be asked for first
 	printf("Add a question: ");
 	scanf(" %[^\n]s", tempQuestion);
 
@@ -1260,12 +1251,31 @@ int isInArray(int arr[], int val, int size){
 
 }
 
+//unused, to be removed
+void adjustQnNumbers(questionData questions[MAX_QUESTIONS], int* totalQuestions){
+
+    int i, j, count;
+    for (i = 0; i < *totalQuestions; i++) {
+        // Reset count for each new topic
+        count = 0;
+        // Check if current question has a new topic
+        if (i == 0 || strcmp(questions[i].topic, questions[i-1].topic) != 0) {
+            // Assign question numbers to all questions with the same topic
+            for (j = i; j < *totalQuestions && strcmp(questions[j].topic, questions[i].topic) == 0; j++) {
+                questions[j].questionNumber = ++count;
+            }
+        }
+    }
+}
+
+
 // Function for importing data from a file (either player data or questions)
 void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, playerData players[MAX_PLAYERS], int *totalPlayers){
 
 	// Increment variable
 	int i;
 	int j, k;
+	int tempQnNumber = 1;
 
 	// File variable declaration
 	FILE *fp;
@@ -1277,6 +1287,7 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 	char selection;
 	char press;
 	string30 input;
+	string20 tempTopic;
 
 	while (selection != '3'){
 
@@ -1315,8 +1326,9 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 					else{
 					
 						// Scans the file for each number until the end of file is reached, then stores them into array data
+
 						while (
-								fscanf(fp, " %[^\n]s", questions[i].topic) != EOF &&
+								fscanf(fp, " %[^\n]s", tempTopic) != EOF &&
 								fscanf(fp, " %d", &questions[i].questionNumber) != EOF &&
 								fscanf(fp, " %[^\n]s", questions[i].question) != EOF &&
 								fscanf(fp, " %[^\n]s", questions[i].choice1) != EOF &&
@@ -1324,19 +1336,31 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 								fscanf(fp, " %[^\n]s", questions[i].choice3) != EOF &&
 								fscanf(fp, " %[^\n]s", questions[i].answer) != EOF	
 							){
+							
+								for (j = 0; j < *totalQuestions; j++){
+								if (strcmp(tempTopic, questions[j].topic) == 0){
+									tempQnNumber++;
+									}
+								}
+								if (tempQnNumber != 1)
+									questions[i].questionNumber = tempQnNumber;
 
-							// i will be the total number of questions read from the file	
-							i++;
+								strcpy(questions[i].topic, tempTopic);
+								
+								// i will be the total number of questions read from the file	
+								i++;
 						}
 						
 						// The total questions read from the file will be added to the tally of total questions
-						*totalQuestions = *totalQuestions + i;
+						*totalQuestions = i;
 
-						// After the loop is complete, prints a success message and exits the menu
-
-						// The struct array is sorted at the end of the function
+						// The struct array is sorted
 						sortQuestions(questions, *totalQuestions);
 
+						// Adjusts numbering of questions
+						//adjustQnNumbers(questions, totalQuestions);
+
+						// After the loop is complete, prints a success message and exits the menu
 						fclose(fp);
 						green(); printf("Import Complete!\n"); reset();
 						press = '1';
