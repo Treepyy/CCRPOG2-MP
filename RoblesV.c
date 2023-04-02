@@ -80,9 +80,6 @@ void deleteRecord();
 void importData();
 void exportData();
 int existingQNACheck();
-void sortTopics();
-int isInArray();
-int getHighest();
 void sortQuestions();
 int genRandInt();
 
@@ -134,54 +131,6 @@ void reset()
 
 /* ================================ */
 // 'Main' Functions
-
-// Base function for getting string inputs that include spaces
-void getStrInput(char string[]){
-	char ch;
-	int i = 0;
-
-	do {
-		scanf("%c", &ch);
-		if (ch != '\n'){
-			string[i] = ch;
-			i++;
-			string[i] = '\0';
-		}
-	}while (i < MAX_SENTENCE && ch != '\n');
-}
-
-// String input function for strings and hide it the input with asterisks
-void getPwdStrInput(char string[]){
-	char ch;
-	int i = 0;
-
-	do {
-		scanf("%c", &ch);
-		if (ch != '\n'){
-			printf("*");
-			string[i] = ch;
-			i++;
-			string[i] = '\0';
-		}
-	}while (i < MAX_LENGTH && ch != '\n');
-}
-
-
-// Function that scans through an integer array and returns the highest integer
-int getHighest(int arr[], int size){
-
-	// Variable declarations
-	int i;
-	int max = 0;
-
-	for (i = 0; i < size; i++){
-		if(arr[i] > arr[max]){
-			max = i;
-		}
-	}
-
-	return arr[max];
-}
 
 // Function that sorts an array of question structs based on topic, then question number, using bubble sort
 void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
@@ -1219,55 +1168,6 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 	}
 
 }
-
-// Sorts a string array in alphabetical order, this function uses the Bubble sort algorithm butfor strings (uses strcpy instead of assignment operations)
-void sortTopics(string20 topics[], int size){
-
-	string20 temp;
-	int i, j;
-
-    for (i = 0; i < size - 1; i++) {
-        for (j = i + 1; j < size; j++) {
-            if (strcmp(topics[i], topics[j]) > 0) {
-                strcpy(temp, topics[i]);
-                strcpy(topics[i], topics[j]);
-                strcpy(topics[j], temp);
-            }
-        }
-    }
-
-}
-
-// Function that scans an integer array, returns 1 if int val is in array, returns 0 if not
-int isInArray(int arr[], int val, int size){
-
-	int i;
-	for (i = 0; i < size; i++){
-		if (arr[i] == val){
-			return 1;
-		}
-	}
-	return 0;
-
-}
-
-//unused, to be removed
-void adjustQnNumbers(questionData questions[MAX_QUESTIONS], int* totalQuestions){
-
-    int i, j, count;
-    for (i = 0; i < *totalQuestions; i++) {
-        // Reset count for each new topic
-        count = 0;
-        // Check if current question has a new topic
-        if (i == 0 || strcmp(questions[i].topic, questions[i-1].topic) != 0) {
-            // Assign question numbers to all questions with the same topic
-            for (j = i; j < *totalQuestions && strcmp(questions[j].topic, questions[i].topic) == 0; j++) {
-                questions[j].questionNumber = ++count;
-            }
-        }
-    }
-}
-
 
 // Function for importing data from a file (either player data or questions)
 void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, playerData players[MAX_PLAYERS], int *totalPlayers){
