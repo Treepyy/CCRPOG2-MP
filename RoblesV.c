@@ -7,13 +7,12 @@ otherwise plagiarized the work of other students and/or persons.
 *********************************************************************************************************/
 
 	/* TO DO:
-		- CLEANUP
-		- REMOVE UNUSED FUNCTIONS
-		- OPTIMIZE RANDOMIZER
+		- IMPROVE FOR LOOP READABILITY (VARIABLE NAMES)
 		- TEST SCRIPT
 		- PARAMETERS IN COMMENTS
 
 	   Done:
+	    - REMOVED UNUSED FUNCTIONS
 	    - FIX QUESTION NUMBER REASSIGNMENT FOR EDIT RECORD
 	    - REPLACED MANUAL DISPLAY TOPICS IN ADMIN FUCNTIONS WITH 'displayTopics()' FUNCTION
 	   	- QUIZ GAME PROPER
@@ -306,8 +305,19 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 	char input;
 	FILE *fp;
 
-	// The scores.txt file will be opened again but in append mode to add new score record if another instance of the game is played
-	fp = fopen("scores.txt", "a");
+	// This block will open the scores.txt file and store all information into the playerData struct array
+	int i = 0;
+	fp = fopen("scores.txt", "r");
+	while (
+		fscanf(fp, " %[^\n]s", players[i].name) != EOF &&
+		fscanf(fp, " %d", &players[i].score) != EOF 
+		){
+
+		// i will be the total number of player data read from the file	
+		i++;
+	}
+	*totalPlayers = i; // totalPlayers will be equal to i
+	fclose(fp);
 	
 	while (input != '3'){
 		displayPlayMenu();
@@ -318,8 +328,12 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 			
 			case '1':
 				system("cls");
+			
+				// The scores.txt file will be opened again but in append mode to add new score record if an instance of the game is played
+				fp = fopen("scores.txt", "a");
 				playGame(questions, players, totalPlayers, totalQuestions, fp);
-				
+				fclose(fp);
+
 				break;
 				
 			case '2':
@@ -328,9 +342,19 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 				
 				break;
 				
-			case '3': // If 'Exit' is chosen, the program is terminated through a return value in the main function.
+			case '3': // If 'Exit' is chosen, program returns to the previous menu by terminating the while loop.
 				system("cls");
-				
+
+				// The scores.txt file will be opened again but in write mode to update the scores.txt file with possible new scores
+				fp = fopen("scores.txt", "w");
+				for (i = 0; i < *totalPlayers; i++){
+            		fprintf(fp, "%s%s", players[i].name, "\n");
+            		fprintf(fp, "%d%s", players[i].score, "\n");
+            		if (i != *totalPlayers - 1){
+            			fprintf(fp, "%s", "\n");
+            		}
+            	}
+				fclose(fp);
 				break;
 			
 			default: 
@@ -730,58 +754,104 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 	string30 tempAnswer;
 	string20 tempTopic;
 
-	// The question and answer will be asked for first
-	printf("Add a question: ");
-	scanf(" %[^\n]s", tempQuestion);
+	char input[150];
+	char confirmation;
 
-	printf("Add an answer: ");
-	scanf(" %[^\n]s", tempAnswer);
+	while (input[0] != '`'){
+		
+		yellow(); printf("\nEnter [`] To Go Back\n\n"); reset();
 
-	// The questionDuplicate variable will serve as a true or false switch (bool) in order to check if the inputted question and answer pair already exists
-	int questionDuplicate = existingQNACheck(questions, tempQuestion, tempAnswer);
+		// The question and answer will be asked for first
+		printf("Add a Question: ");
+		scanf(" %[^\n]s", input);
+		strcpy(tempQuestion, input);
 
-	// If the question and answer pair is a duplicate, an error message will be printed and the user will return to the previous menu
-	if (questionDuplicate){
-		red(); printf("That question and answer already exists!\n"); reset();
-	}
+		// If input is not ` (exit), continue to ask for the next input.
+		if (input[0] != '`'){
+			printf("Add an Answer: ");
+			scanf(" %[^\n]s", input);
+			strcpy(tempAnswer, input);
 
-	// If the question and answer pair is valid;
-	else{
+			// If input is not ` (exit), continue to ask for the next input.
+			if (input[0] != '`'){
 
-		// The previous inputs will be copied from the temporary variable to their respective struct array child
-		strcpy(questions[i].question, tempQuestion);
-		strcpy(questions[i].answer, tempAnswer);
+				// The questionDuplicate variable will serve as a true or false switch (bool) in order to check if the inputted question and answer pair already exists
+				int questionDuplicate = existingQNACheck(questions, tempQuestion, tempAnswer);
 
-		// Continuation of input calls, this time the inputs are directly stored in the struct
-		printf("Add a topic: ");
-		scanf(" %[^\n]s", tempTopic);
-		for (j = 0; j < *totalQuestions; j++){
-			if (strcmp(tempTopic, questions[j].topic) == 0){
-				tempQnNumber++;
+				// If the question and answer pair is a duplicate, an error message will be printed and the user will return to the previous menu
+				if (questionDuplicate){
+					red(); printf("That question and answer already exists!\n"); reset();
+				}
+
+				// Else, if the question and answer pair is valid;
+				else{
+
+					// The previous inputs will be copied from the temporary variable to their respective struct array child
+					strcpy(questions[i].question, tempQuestion);
+					strcpy(questions[i].answer, tempAnswer);
+
+					// Continuation of input calls, this time the inputs are directly stored in the struct
+					printf("Add a Topic: ");
+					scanf(" %[^\n]s", input);
+					strcpy(tempTopic, input);
+
+					// If input is not ` (exit), continue to ask for the next input.
+					if (input[0] != '`'){
+						for (j = 0; j < *totalQuestions; j++){
+							if (strcmp(tempTopic, questions[j].topic) == 0){
+								tempQnNumber++;
+							}
+						}
+						strcpy(questions[j].topic, tempTopic);
+						questions[i].questionNumber = tempQnNumber;
+
+						printf("Add the First Choice: ");
+						scanf(" %[^\n]s", input);
+						strcpy(questions[i].choice1, input);
+
+						// If input is not ` (exit), continue to ask for the next input.
+						if (input[0] != '`'){
+
+							printf("Add the Second Choice: ");
+							scanf(" %[^\n]s", input);
+							strcpy(questions[i].choice2, input);
+
+							// If input is not ` (exit), continue to ask for the next input.
+							if (input[0] != '`'){
+
+								printf("Add the Third Choice: ");
+								scanf(" %[^\n]s", input);
+								strcpy(questions[i].choice3, input);
+
+								// If input is not ` (exit), continue to ask for confirmation to save the question.
+								if (input[0] != '`'){
+								
+									printf("Current Input is Question #%d of Topic \"%s\"\n", tempQnNumber, tempTopic);
+									yellow(); printf("Save the current input? (Y/N)\n"); reset();
+									printf(">> ");
+									scanf(" %c", &confirmation);
+									if (confirmation == 'Y' || confirmation == 'y'){
+										green(); printf("Question Saved!"); reset();
+										*totalQuestions = *totalQuestions + 1; // Once the add record is successful and confirmed, totalQuestions variable in main will be incremented by one
+									}
+									else{
+										red(); printf("Question Discarded."); reset(); // Else, the totalQuestions variable will remain unchanged
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
-		strcpy(questions[j].topic, tempTopic);
-		questions[i].questionNumber = tempQnNumber;
 
-		printf("Add the first choice: ");
-		scanf(" %[^\n]s", questions[i].choice1);
-
-		printf("Add the second choice: ");
-		scanf(" %[^\n]s", questions[i].choice2);
-
-		printf("Add the third choice: ");
-		scanf(" %[^\n]s", questions[i].choice3);
-		
-		printf("Current input is Question #%d of topic \"%s\"\n", tempQnNumber, tempTopic);
-		
-
-		// Once the add record is successful, the totalQuestions variable in main will be incremented by one
-		*totalQuestions = *totalQuestions + 1;
 		printf("\nTotal Questions: %d\n", *totalQuestions);
+		input[0] = '`';
 	}
 
 	// The struct array is sorted at the end of the function
 	sortQuestions(questions, *totalQuestions);
+
 }
 
 // This fucntion checks if a question-answer pair already exists within the struct
@@ -1435,21 +1505,6 @@ int main(){
 	questionData questions[MAX_QUESTIONS];
 	playerData players[MAX_PLAYERS];
 	pwd correctPassword = "password69"; // correct password for admin panel
-
-	// This block will open the scores.txt file and store all information into the playerData struct array
-	FILE *fp;
-	int i = 0;
-	fp = fopen("scores.txt", "r");
-	while (
-		fscanf(fp, " %[^\n]s", players[i].name) != EOF &&
-		fscanf(fp, " %d", &players[i].score) != EOF 
-		){
-
-		// i will be the total number of player data read from the file	
-		i++;
-	}
-	totalPlayers = i; // totalPlayers will be equal to i
-	fclose(fp);
 
 	while (input != '3'){
 		
