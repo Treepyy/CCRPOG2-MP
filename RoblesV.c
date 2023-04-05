@@ -7,11 +7,11 @@ otherwise plagiarized the work of other students and/or persons.
 *********************************************************************************************************/
 
 	/* TO DO:
-		- IMPROVE FOR LOOP READABILITY (VARIABLE NAMES)
+		- IMPROVE FOR LOOP READABILITY (VARIABLE NAMES), COMMENTS
 		- TEST SCRIPT
-		- PARAMETERS IN COMMENTS
 
 	   Done:
+	   	- PARAMETERS IN COMMENTS
 	    - REMOVED UNUSED FUNCTIONS
 	    - FIX QUESTION NUMBER REASSIGNMENT FOR EDIT RECORD
 	    - REPLACED MANUAL DISPLAY TOPICS IN ADMIN FUCNTIONS WITH 'displayTopics()' FUNCTION
@@ -131,7 +131,14 @@ void reset()
 /* ================================ */
 // 'Main' Functions
 
-// Function that sorts an array of question structs based on topic, then question number, using bubble sort
+/* 
+	Function that sorts an array of question structs based on topic, then question number, using bubble sort 
+	Precondition: totalQuestions is greater than 1, all members of each questionData struct is filled and valid 
+	@param questions is the struct questionData array for storing questions
+	@param totalQuestions is the total number of questions currently being stored in the program
+	@return void
+
+*/
 void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
     int i, j, k, l;
 	int size = totalQuestions;
@@ -171,8 +178,17 @@ void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
     }
 }
 
-// Prototype function for password functionality with hidden input using getch
-void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int* totalPlayers, pwd correctPassword){
+/* 
+	Function for password functionality with hidden input using getch, used to access the Admin Panel
+	Precondition: correctPassword in main is a valid string and can be written using keyboard input
+	@param questions is the struct questionData array for storing questions 
+	@param players is the struct playerData array for storing player data (scores and names)
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
+	@param correctPassword is the string in main which stores the correct password to access the admin panel
+	@return void
+*/
+void passwordScreen(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int* totalPlayers, pwd correctPassword){
 	
 	// Variable declarations
 
@@ -251,7 +267,10 @@ void passwordPrototype(questionData questions[MAX_QUESTIONS], playerData players
 	}
 }
 
-// Function that prints the main menu interface.
+/*
+	Function that prints the main menu interface.
+	@return void
+*/
 void displayMainMenu(){
 
 	printf("+-----------------+\n");
@@ -266,7 +285,11 @@ void displayMainMenu(){
 	
 }
 
-// Function that prints the Admin menu interface.
+
+/*
+	Function that prints the Admin menu interface.
+	@return void
+*/
 void displayAdminMenu(){
 
 	printf("+---------------------+\n");
@@ -284,7 +307,11 @@ void displayAdminMenu(){
 
 }
 
-// Function that prints the Play menu interface.
+
+/*
+	Function that prints the Play menu interface.
+	@return void
+*/
 void displayPlayMenu(){
 
 	printf("+-----------------+\n");
@@ -299,7 +326,15 @@ void displayPlayMenu(){
 
 }
 
-// Function that handles inputs for the Play menu
+/* 
+	Function that handles inputs for the 'Play' menu
+	Precondition: All structs and members are valid, totalPlayers and totalQuestions are greater than or equal to 0
+	@param questions is the struct questionData array for storing questions 
+	@param players is the struct playerData array for storing player data (scores and names)
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
+	@return void
+*/
 void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions){
 	
 	char input;
@@ -371,7 +406,13 @@ void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLA
 	
 }
 
-// Function for generating a random integer between a set range
+/*
+	Function for generating a random integer between a set range
+	Precondition: Parameters do not exceed the integer limit, parameter min is less than parameter max
+	@param min is the lower bound of the range of possible random numbers to be generated (inclusive)
+	@param max is the upper bound of the range of possible random numbers to be generated (inclusive)
+	@return a random value between min and max inclusive
+*/
 int genRandInt(int min, int max){
 
 	// The random number generator is seeded with the current time;
@@ -381,6 +422,13 @@ int genRandInt(int min, int max){
     return min + rand() % (max - min + 1); 
 }
 
+/*
+	Function for printing all currently available topics within the questionsData struct array, only shows each topic once
+	Precondition: All structs and members are valid, and totalQuestions is greater than or equal to 0
+	@param questions is the struct questionData array for storing questions 
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@return void
+*/
 void displayTopics(questionData questions[MAX_QUESTIONS], int *totalQuestions){
 
 	int i, j, isUnique;
@@ -405,7 +453,16 @@ void displayTopics(questionData questions[MAX_QUESTIONS], int *totalQuestions){
 
 }
 
-// Function for playing the quiz game
+/* 
+	Function that handles inputs for the 'Play' menu
+	Precondition: All structs and members are valid, totalPlayers and totalQuestions are greater than or equal to 0, scores.txt has been initialized and opened
+	@param questions is the struct questionData array for storing questions 
+	@param players is the struct playerData array for storing player data (scores and names)
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
+	@param *fp is the FILE pointer to scores.txt
+	@return void
+*/
 void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions, FILE *fp){
 	
 	// increment variables
@@ -628,15 +685,21 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 
 }
 
-// Function that sorts the playerData struct array based on scores
-void sortScores(playerData players[MAX_PLAYERS], int size){
+/* 
+	Function that sorts the playerData struct array based on scores in descending order
+	Precondition: All structs and members are valid, totalPlayers are greater than or equal to 0
+	@param players is the struct playerData array for storing player data (scores and names)
+	@param totalPlayers is the number of total number of players currently being stored in the program 
+	@return void
+*/
+void sortScores(playerData players[MAX_PLAYERS], int totalPlayers){
 
 	int i, j;
     playerData temp;
     
     // Sorts based on score in descending order
-    for (i = 0; i < size - 1; i++) {
-        for (j = i + 1; j < size; j++) {
+    for (i = 0; i < totalPlayers - 1; i++) {
+        for (j = i + 1; j < totalPlayers; j++) {
             if (players[j].score > players[i].score) {
                 // Swap the two questions
                 temp = players[i];
@@ -648,7 +711,13 @@ void sortScores(playerData players[MAX_PLAYERS], int size){
 
 }
 
-// Function for the 'View Scores' option that displays all saved player scores
+/* 
+	Function for the 'View Scores' option that displays all saved player scores 
+	Precondition: All structs and members are valid, totalPlayers are greater than or equal to 0
+	@param players is the struct playerData array for storing player data (scores and names)
+	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
+	@return void
+*/
 void viewScores(playerData players[MAX_PLAYERS], int* totalPlayers, FILE *fp){
 
 	int i;
@@ -666,7 +735,15 @@ void viewScores(playerData players[MAX_PLAYERS], int* totalPlayers, FILE *fp){
 
 }
 
-// Function that handles inputs for the Manage Data menu
+/* 
+	Function that handles inputs for the Manage Data menu 
+	Precondition: All structs and members are valid, totalPlayers and totalQuestions are greater than or equal to 0
+	@param questions is the struct questionData array for storing questions 
+	@param players is the struct playerData array for storing player data (scores and names)
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
+	@return void
+*/
 void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int *totalPlayers){
 
 	char input;
@@ -740,7 +817,13 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 	
 }
 
-// Function that handles input for the addRecord function
+/* 
+	Function that handles input for the addRecord function 
+	Precondition: All structs and members are valid, totalQuestions are greater than or equal to 0
+	@param questions is the struct questionData array for storing questions 
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@return void
+*/
 void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 	// The increment variable 'i' is initialized to the total number of questions, which at the start of the program is always set to 0
@@ -854,7 +937,14 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 }
 
-// This fucntion checks if a question-answer pair already exists within the struct
+/*
+	This fucntion checks if a question-answer pair already exists within the struct 
+	Precondition: All structs and members are valid
+	@param questions is the struct questionData array for storing questions 
+	@param addenQn is the string corresponding to the current user 'Question' input (in addRecord)
+	@param addenQn is the string corresponding to the current user 'Answer' input (in addRecord)
+	@return 1 if the question-answer pair belongs in the same struct array index, return 0 if there are no matches found
+*/
 int existingQNACheck(questionData questions[MAX_QUESTIONS], string150 addedQn, string30 addedAns){
 
 	int i;
@@ -889,7 +979,13 @@ int existingQNACheck(questionData questions[MAX_QUESTIONS], string150 addedQn, s
 
 }
 
-// Function that handles editing individual question records
+/*
+	Function that handles editing individual question records 
+	Precondition: All structs and members are valid, totalQuestions are greater than or equal to 0
+	@param questions is the struct questionData array for storing questions 
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@return void
+*/
 void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 
 	// Increment variables
@@ -1083,7 +1179,13 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 
 
 }
-
+/*
+	Function that handles deleting individual question records 
+	Precondition: All structs and members are valid, totalQuestions are greater than or equal to 0
+	@param questions is the struct questionData array for storing questions 
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@return void
+*/
 void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 	// Increment variables
@@ -1239,7 +1341,15 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 }
 
-// Function for importing data from a file (either player data or questions)
+/*
+	Function for importing data from a file (either player data or questions)
+	Precondition: All structs and members are valid, totalPlayers and totalQuestions are greater than or equal to 0, scores.txt has been initialized and opened
+	@param questions is the struct questionData array for storing questions 
+	@param players is the struct playerData array for storing player data (scores and names)
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
+	@return void
+*/
 void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, playerData players[MAX_PLAYERS], int *totalPlayers){
 
 	// Increment variable
@@ -1413,7 +1523,15 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 	}
 }
 
-// Function for exporting data to a file (either player data or questions)
+/*
+	Function for exporting data to a file (either player data or questions)
+	Precondition: All structs and members are valid, totalPlayers and totalQuestions are greater than or equal to 0, scores.txt has been initialized and opened
+	@param questions is the struct questionData array for storing questions 
+	@param players is the struct playerData array for storing player data (scores and names)
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
+	@return void
+*/
 void exportData(questionData questions[MAX_QUESTIONS], int* totalQuestions, playerData players[MAX_PLAYERS], int *totalPlayers){
 
 	// Increment variable
@@ -1497,6 +1615,10 @@ void exportData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 
 /* ================================ */
 
+/*
+	Main function
+	@return 0
+*/
 int main(){
 	
 
@@ -1522,7 +1644,7 @@ int main(){
 				
 			case '2':
 				system("cls");
-				passwordPrototype(questions, players, &totalQuestions, &totalPlayers, correctPassword);
+				passwordScreen(questions, players, &totalQuestions, &totalPlayers, correctPassword);
 				
 				break;
 				
