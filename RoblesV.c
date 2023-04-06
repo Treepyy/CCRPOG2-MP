@@ -6,6 +6,14 @@ otherwise plagiarized the work of other students and/or persons.
 																	Vance Gyan M. Robles, DLSU ID#12279560
 *********************************************************************************************************/
 
+/*
+	Description: A program which simulates a quiz trivia game
+	Programmed by: Vance Gyan M. Robles, Section S23B
+	Last modified: 04/05/2023
+	Version: 0.9b
+*/
+
+
 	/* TO DO:
 		- IMPROVE FOR LOOP READABILITY (VARIABLE NAMES), COMMENTS
 		- TEST SCRIPT
@@ -27,11 +35,11 @@ otherwise plagiarized the work of other students and/or persons.
 	*/
 
 #include <stdio.h>
-#include <windows.h>
 #include <stdlib.h>
 #include <time.h>
 #include <conio.h>
 #include <string.h>
+// #include <windows.h>
 
 #define MAX_LENGTH 33
 #define MAX_PLAYERS 50
@@ -88,43 +96,37 @@ int genRandInt();
 //  This function changes the text color to a brighter white
 void bold()
 {
-	HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hc, 0xF);
+	printf("\e[1;97m");
 }
 
 //  This function changes the text color to cyan
 void cyan()
 {
-	HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hc, 0x3);
+	printf("\033[0;36m");
 }
 
 //  This function changes the text color to green
 void green()
 {
-	HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hc, 0xA);
+	printf("\e[0;92m");
 }
 
 //  This function changes the text color to yellow
 void yellow()
 {
-	HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hc, 0xE);
+	printf("\033[1;33m");
 }
 
 //  This function changes the text color to red
 void red()
 {
-	HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hc, 0xC);
+	printf("\e[0;91m");
 }
 
 //  This function changes the text color to the default white
 void reset()
 {
-	HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hc, 0x7);
+	printf("\033[0m");
 }
 
 
@@ -1621,7 +1623,7 @@ void exportData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 */
 int main(){
 	
-
+	system("cls");
 	char input;
 	int totalQuestions = 0, totalPlayers = 0;
 	questionData questions[MAX_QUESTIONS];
