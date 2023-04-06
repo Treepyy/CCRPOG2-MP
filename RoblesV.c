@@ -57,7 +57,7 @@ typedef char string30[31];
 typedef char string150[151];
 
 // Structures
-typedef struct {
+struct questionData{
 
 	string20 topic;
 	int questionNumber;
@@ -67,14 +67,14 @@ typedef struct {
 	string30 choice3;
 	string30 answer;
 
-}questionData;
+};
 
-typedef struct {
+struct playerData{
 
 	string20 name;
 	int score;
 
-}playerData;
+};
 
 /* ================================ */
 // Function Prototypes
@@ -141,12 +141,12 @@ void reset()
 	@return void
 
 */
-void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
+void sortQuestions(struct questionData questions[MAX_QUESTIONS], int totalQuestions) {
     int i, j, k, l;
 	int size = totalQuestions;
-    questionData temp;
+    struct questionData temp;
     
-    // Sort based on topic in alphabetical order
+    // First, sort based on topic in alphabetical order (increasing)
     for (i = 0; i < size - 1; i++) {
         for (j = i + 1; j < size; j++) {
             if (strcmp(questions[i].topic, questions[j].topic) > 0) {
@@ -158,25 +158,33 @@ void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
         }
     }
     
-    // Sort based on question number in increasing order (within each topic group)
-    i = 0;
+    
+    i = 0; // i is reset to 0
+
+	// Then, sort based on question number in increasing order (within each topic group)
     while (i < size) {
+
+		// j is set to the index of the first element (start) of the current topic group
         j = i;
+
+		// Then, finds the end of the current topic group through strcmp and assigns it to j
         while (j < size && strcmp(questions[i].topic, questions[j].topic) == 0) {
             j++;
         }
         // Sort the questions with the same topic from i to j-1
         for (k = i; k < j - 1; k++) {
             for (l = k + 1; l < j; l++) {
+				// Compare the question numbers of the two questions within the same topic group
                 if (questions[k].questionNumber > questions[l].questionNumber) {
-                    // Swaps the two questions
+                    // Swaps the two questions if the question number of the k-th question is greater than the question number of the l-th question
                     temp = questions[k];
                     questions[k] = questions[l];
                     questions[l] = temp;
                 }
             }
         }
-        i = j;
+		
+        i = j; // Moves the iteration to the next topic group by reassigning i to the end of the previous topic group
     }
 }
 
@@ -190,7 +198,7 @@ void sortQuestions(questionData questions[MAX_QUESTIONS], int totalQuestions) {
 	@param correctPassword is the string in main which stores the correct password to access the admin panel
 	@return void
 */
-void passwordScreen(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int* totalPlayers, pwd correctPassword){
+void passwordScreen(struct questionData questions[MAX_QUESTIONS], struct playerData players[MAX_PLAYERS], int* totalQuestions, int* totalPlayers, pwd correctPassword){
 	
 	// Variable declarations
 
@@ -337,7 +345,7 @@ void displayPlayMenu(){
 	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
 	@return void
 */
-void playPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions){
+void playPanel(struct questionData questions[MAX_QUESTIONS], struct playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions){
 	
 	char input;
 	FILE *fp;
@@ -431,7 +439,7 @@ int genRandInt(int min, int max){
 	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
 	@return void
 */
-void displayTopics(questionData questions[MAX_QUESTIONS], int *totalQuestions){
+void displayTopics(struct questionData questions[MAX_QUESTIONS], int *totalQuestions){
 
 	int i, j, isUnique;
 	int size = *totalQuestions;
@@ -465,7 +473,7 @@ void displayTopics(questionData questions[MAX_QUESTIONS], int *totalQuestions){
 	@param *fp is the FILE pointer to scores.txt
 	@return void
 */
-void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions, FILE *fp){
+void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions, FILE *fp){
 	
 	// increment variables
 	int i = *totalPlayers, j;
@@ -682,9 +690,6 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 			}
 		}
 	}
-
-
-
 }
 
 /* 
@@ -694,10 +699,10 @@ void playGame(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAY
 	@param totalPlayers is the number of total number of players currently being stored in the program 
 	@return void
 */
-void sortScores(playerData players[MAX_PLAYERS], int totalPlayers){
+void sortScores(struct playerData players[MAX_PLAYERS], int totalPlayers){
 
 	int i, j;
-    playerData temp;
+    struct playerData temp;
     
     // Sorts based on score in descending order
     for (i = 0; i < totalPlayers - 1; i++) {
@@ -720,7 +725,7 @@ void sortScores(playerData players[MAX_PLAYERS], int totalPlayers){
 	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
 	@return void
 */
-void viewScores(playerData players[MAX_PLAYERS], int* totalPlayers, FILE *fp){
+void viewScores(struct playerData players[MAX_PLAYERS], int* totalPlayers, FILE *fp){
 
 	int i;
 	sortScores(players, *totalPlayers);
@@ -746,7 +751,7 @@ void viewScores(playerData players[MAX_PLAYERS], int* totalPlayers, FILE *fp){
 	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
 	@return void
 */
-void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PLAYERS], int* totalQuestions, int *totalPlayers){
+void adminPanel(struct questionData questions[MAX_QUESTIONS], struct playerData players[MAX_PLAYERS], int* totalQuestions, int *totalPlayers){
 
 	char input;
 	int j;
@@ -826,7 +831,7 @@ void adminPanel(questionData questions[MAX_QUESTIONS], playerData players[MAX_PL
 	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
 	@return void
 */
-void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
+void addRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 	// The increment variable 'i' is initialized to the total number of questions, which at the start of the program is always set to 0
 	// Increment variable j is used in the for loop to store question numbers
@@ -947,7 +952,7 @@ void addRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 	@param addenQn is the string corresponding to the current user 'Answer' input (in addRecord)
 	@return 1 if the question-answer pair belongs in the same struct array index, return 0 if there are no matches found
 */
-int existingQNACheck(questionData questions[MAX_QUESTIONS], string150 addedQn, string30 addedAns){
+int existingQNACheck(struct questionData questions[MAX_QUESTIONS], string150 addedQn, string30 addedAns){
 
 	int i;
 	int matchQuestion = -1, matchAnswer = -2;
@@ -988,7 +993,7 @@ int existingQNACheck(questionData questions[MAX_QUESTIONS], string150 addedQn, s
 	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
 	@return void
 */
-void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
+void editRecord(struct questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 
 	// Increment variables
 	int i;
@@ -1188,7 +1193,7 @@ void editRecord(questionData questions[MAX_QUESTIONS],  int* totalQuestions){
 	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
 	@return void
 */
-void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
+void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuestions){
 
 	// Increment variables
 	int i;
@@ -1352,7 +1357,7 @@ void deleteRecord(questionData questions[MAX_QUESTIONS], int* totalQuestions){
 	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
 	@return void
 */
-void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, playerData players[MAX_PLAYERS], int *totalPlayers){
+void importData(struct questionData questions[MAX_QUESTIONS], int* totalQuestions, struct playerData players[MAX_PLAYERS], int *totalPlayers){
 
 	// Increment variable
 	int i;
@@ -1534,7 +1539,7 @@ void importData(questionData questions[MAX_QUESTIONS], int* totalQuestions, play
 	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
 	@return void
 */
-void exportData(questionData questions[MAX_QUESTIONS], int* totalQuestions, playerData players[MAX_PLAYERS], int *totalPlayers){
+void exportData(struct questionData questions[MAX_QUESTIONS], int* totalQuestions, struct playerData players[MAX_PLAYERS], int *totalPlayers){
 
 	// Increment variable
 	int i;
@@ -1626,8 +1631,8 @@ int main(){
 	system("cls");
 	char input;
 	int totalQuestions = 0, totalPlayers = 0;
-	questionData questions[MAX_QUESTIONS];
-	playerData players[MAX_PLAYERS];
+	struct questionData questions[MAX_QUESTIONS];
+	struct playerData players[MAX_PLAYERS];
 	pwd correctPassword = "password69"; // correct password for admin panel
 
 	while (input != '3'){
