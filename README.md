@@ -3,6 +3,13 @@
 - S23B
 - ID12279560
 
+## Finalization
+- [ ] Test Script
+- [ ] Presentation
+- [ ] Flowchart
+- [ ] Self-Created Questions Record
+- [ ] Final Debugging
+
 ## Main Requirements
 - [x] Function Cleanup / Optimization
 - [x] Clean Formatting
