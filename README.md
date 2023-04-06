@@ -4,8 +4,8 @@
 - ID12279560
 
 ## Main Requirements
-- [ ] Cleanup / Optimization
-- [ ] Convert Format to Coding Standards
+- [x] Function Cleanup / Optimization
+- [x] Clean Formatting
 - [x] Menu Outline (02/14/2023)
 - [x] Password Input (02/17/2023)
 - [x] Add a Record (03/03/2023)* (03/14/2023)
@@ -20,7 +20,7 @@
 - [x] Export Scores (03/14/2023)
 
 ## Documentation
-- [x] In-line Comments (in-progress)
+- [x] In-line Comments
 - [ ] Test Script
 
 ## Bonus Requirements
