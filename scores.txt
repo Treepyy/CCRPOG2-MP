@@ -4,8 +4,17 @@ Jacky
 Name69
 7
 
+Bob
+6
+
 Lyn
 5
 
+NewPlayer
+4
+
 Test
+1
+
+NewPlayer
 1
