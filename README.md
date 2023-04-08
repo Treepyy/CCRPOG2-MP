@@ -5,10 +5,10 @@
 
 ## Finalization
 - [ ] Test Script
-- [ ] Presentation
-- [ ] Flowchart
-- [ ] Self-Created Questions Record
+- [x] Presentation
+- [x] Self-Created Questions Record
 - [ ] Final Debugging
+- [ ] User Interface Cleanup
 
 ## Main Requirements
 - [x] Function Cleanup / Optimization

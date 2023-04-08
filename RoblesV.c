@@ -17,9 +17,10 @@ otherwise plagiarized the work of other students and/or persons.
 	/* TO DO:
 		- IMPROVE FOR LOOP READABILITY (VARIABLE NAMES), COMMENTS
 		- TEST SCRIPT
-		- ADD CONFIRMATION FOR EDIT RECORD
+		- FINAL SCREEN CLEANUP FOR MENU SELECTIONS
 
 	   Done:
+	   	- ADD CONFIRMATION FOR EDIT RECORD
 	   	- PARAMETERS IN COMMENTS
 	    - REMOVED UNUSED FUNCTIONS
 	    - FIX QUESTION NUMBER REASSIGNMENT FOR EDIT RECORD
@@ -353,17 +354,29 @@ void playPanel(struct questionData questions[MAX_QUESTIONS], struct playerData p
 
 	// This block will open the scores.txt file and store all information into the playerData struct array
 	int i = 0;
-	fp = fopen("scores.txt", "r");
-	while (
-		fscanf(fp, " %[^\n]s", players[i].name) != EOF &&
-		fscanf(fp, " %d", &players[i].score) != EOF 
-		){
 
-		// i will be the total number of player data read from the file	
-		i++;
+	fp = fopen("scores.txt", "r");
+
+	// If scores.txt does not exist, it will be created
+	if (fp == NULL){
+		fp = fopen("scores.txt", "w");
+		green(); printf("scores.txt has been created.\n"); reset();
+		fclose(fp);
 	}
-	*totalPlayers = i; // totalPlayers will be equal to i
-	fclose(fp);
+
+	// Else, contents of the scores.txt file are read and stored into the players struct array
+	else{
+		while (
+			fscanf(fp, " %[^\n]s", players[i].name) != EOF &&
+			fscanf(fp, " %d", &players[i].score) != EOF 
+			){
+
+			// i will be the total number of player data read from the file	
+			i++;
+		}
+		*totalPlayers = i; // totalPlayers will be equal to i
+		fclose(fp);
+	}
 	
 	while (input != '3'){
 		displayPlayMenu();
@@ -384,7 +397,7 @@ void playPanel(struct questionData questions[MAX_QUESTIONS], struct playerData p
 				
 			case '2':
 				system("cls");
-				viewScores(players, totalPlayers, fp);
+				viewScores(players, totalPlayers);
 				
 				break;
 				
@@ -425,6 +438,15 @@ void playPanel(struct questionData questions[MAX_QUESTIONS], struct playerData p
 	@return a random value between min and max inclusive
 */
 int genRandInt(int min, int max){
+
+    int temp;
+
+	// If min is greater than max, swap
+    if (min > max){
+        temp = min;
+        min = max;
+        max = temp;
+    }
 
 	// The random number generator is seeded with the current time;
 	srand(time(NULL)); 
@@ -735,20 +757,39 @@ void sortScores(struct playerData players[MAX_PLAYERS], int totalPlayers){
 	@param *totalPlayers is the pointer to the variable in main storing the total number of players currently being stored in the program
 	@return void
 */
-void viewScores(struct playerData players[MAX_PLAYERS], int* totalPlayers, FILE *fp){
+void viewScores(struct playerData players[MAX_PLAYERS], int* totalPlayers){
 
 	int i;
+
+	// Sorts scores in descending order
 	sortScores(players, *totalPlayers);
+
+	// Variables for rank calculation
+	int rank = 1;
+    int prevScore = players[0].score;
+
 	printf("+======+======================+=======+\n");
 	printf("|             Leaderboard             |\n");
 	printf("+======+======================+=======+\n");
 	printf("| Rank |         Name         | Score |\n");
 	printf("+------+----------------------+-------+\n");
 	for (i = 0; i < *totalPlayers; i++){
-		printf("|%-6d|%-22s|%-7d|\n", i + 1, players[i].name, players[i].score);
+
+		// If current score is higher than previous score, rank is increased
+		if (players[i].score < prevScore) {
+            rank++;
+        }
+
+		printf("|%-6d|%-22s|%-7d|\n", rank, players[i].name, players[i].score);
 		printf("+------+----------------------+-------+\n");
+
+		// Previous score is set to the current score at the end of each instance of the loop
+		prevScore = players[i].score;
 	}
 	printf("\n");
+	cyan(); printf("[Press any key to return.]\n"); reset();
+	getch();
+	system("cls");
 
 }
 
@@ -1011,9 +1052,16 @@ void editRecord(struct questionData questions[MAX_QUESTIONS],  int* totalQuestio
 	// Variables for strings (for input and for storing/sorting topics)
 	char input[20];
 	string20 tempTopic;
+	string150 tempQuestion;
+	string30 tempChoice;
+	string30 tempAnswer;
 
 	// Checking (bool) variables
 	int exists;
+
+	// Buffer variables
+	int buffer;
+	char confirmation;
 
 	// If total questions is greater than 0, proceed
 	if (*totalQuestions > 0){
@@ -1021,7 +1069,7 @@ void editRecord(struct questionData questions[MAX_QUESTIONS],  int* totalQuestio
 		// The while loop will continue until the user enters '1', or a string that starts with '1'
 		while (input[0] != '1'){
 
-			yellow(); printf("Type the Topic to Edit\nEnter [1] to Go Back\n"); reset();
+			yellow(); printf("Type the Topic of the Question to Edit\nEnter [1] to Go Back\n"); reset();
 			displayTopics(questions, totalQuestions);
 
 			// Gets user input, will be case sensitive
@@ -1053,8 +1101,8 @@ void editRecord(struct questionData questions[MAX_QUESTIONS],  int* totalQuestio
 
 				int k = 0;
 
-				printf("\nQuestion Numbers Associated with the Topic:\n"); 
-
+				yellow(); printf("\nInput [0] to Exit.\n"); reset();
+				green(); printf("Question Numbers Associated with the Topic:\n"); reset();
 				// Looks through the questions struct array for the question index associated with the inputted topic and stores them in the validNums array
 				for (i = 0; i < *totalQuestions; i++){
 					if (strcmp(input, questions[i].topic) == 0){
@@ -1065,125 +1113,264 @@ void editRecord(struct questionData questions[MAX_QUESTIONS],  int* totalQuestio
 				}
 
 				// Continues asking for input until user enters a valid input
-				while (numInput > topicQns || numInput < 1){
+				while (numInput > topicQns || numInput < 0){
 					printf("\n>> ");
-					scanf("%d", &numInput);
-					if (numInput > topicQns || numInput < 1){
+
+					// scanf is buffered so that character misinputs will not result in an infinite loop
+					buffer = scanf("%d", &numInput);
+					if (buffer == 0) {
+            			numInput = getchar(); // catches the character input
+        			}
+
+					// prints an error message if the selected number is out of range
+					if (numInput > topicQns || numInput < 0){
 						red(); printf("Invalid Input!\n"); reset();
 					}
 				}
 
-				// Displays the current saved record
-				// The index to be edited is defined as validNums[numInput - 1]
-				int editInput = 0;
-				green(); printf("\nCurrent Record:\n"); reset();
-				printf("Question Number: %d\n", questions[ validNums[numInput - 1] ].questionNumber);
-				printf("[1] Topic: %s\n", questions[ validNums[numInput - 1] ].topic);
-				printf("[2] Question: %s\n", questions[ validNums[numInput - 1] ].question);
-				printf("[3] Choice 1: %s\n", questions[ validNums[numInput - 1] ].choice1);
-				printf("[4] Choice 2: %s\n", questions[ validNums[numInput - 1] ].choice2);
-				printf("[5] Choice 3: %s\n", questions[ validNums[numInput - 1] ].choice3);
-				printf("[6] Answer: %s\n", questions[ validNums[numInput - 1] ].answer);
-				printf("[7] Exit\n");
+				// If user does not select 'Exit', continue
+				if (numInput != 0){
+					// Displays the current saved record
+					// The index to be edited is defined as validNums[numInput - 1]
+					int editInput = 0;
+					green(); printf("\nCurrent Record:\n"); reset();
+					printf("Question Number: %d\n", questions[ validNums[numInput - 1] ].questionNumber);
+					printf("[1] Topic: %s\n", questions[ validNums[numInput - 1] ].topic);
+					printf("[2] Question: %s\n", questions[ validNums[numInput - 1] ].question);
+					printf("[3] Choice 1: %s\n", questions[ validNums[numInput - 1] ].choice1);
+					printf("[4] Choice 2: %s\n", questions[ validNums[numInput - 1] ].choice2);
+					printf("[5] Choice 3: %s\n", questions[ validNums[numInput - 1] ].choice3);
+					printf("[6] Answer: %s\n", questions[ validNums[numInput - 1] ].answer);
+					printf("[7] Exit\n");
 
-				// While loop continues until user exits OR until user makes a change
-				while (editInput != 7){
-					printf("\n>> ");
-					scanf("%d", &editInput);
-					printf("\n");
-					switch(editInput){
-						case 1:
-							
-							printf("Input New [Topic]: ");
-							scanf(" %[^\n]s", tempTopic);
+					// While loop continues until user exits OR until user makes a change
+					while (editInput != 7){
+						printf("\n>> ");
 
-							// Reassignment of question number if the topic was edited
-							int tempQnNumber = 1;
-							for (i = 0; i < *totalQuestions; i++){
-								if (strcmp(tempTopic, questions[i].topic) == 0){
-									tempQnNumber++;
-								}
-							}
-							questions[validNums[numInput - 1]].questionNumber = tempQnNumber;
-							strcpy(questions[ validNums[numInput - 1] ].topic, tempTopic);
+						// scanf is buffered so that character misinputs will not result in an infinite loop
+						buffer = scanf("%d", &editInput);
+						if (buffer == 0) {
+							editInput = getchar(); // catches the character input
+						}
 
-							// Re-assignment of question numbers of other records in the topic to account for the gap if topic was changed
-							topicQns = 0;
-							for (i = 0; i < *totalQuestions; i++){
-								if (strcmp(input, questions[i].topic) == 0){
-									topicQns++;
+						// once a change has been made (either saved or discarded), numInput will be set to -1 to reset the choice,
+						// user will also be redirected back to topic selection, if an edit has been saved, the selection screen will adjust accordingly
+						switch(editInput){
+							case 1:
+								printf("\n");
+								printf("Input New [Topic]: ");
+								scanf(" %[^\n]s", tempTopic);
+								yellow(); printf("Do you want to save your current changes? (Y/N)"); reset();
+								printf("\n>> ");
+								scanf(" %c", &confirmation);
+
+								if (confirmation == 'Y' || confirmation == 'y'){
+									// Reassignment of question number if the topic was edited
+									int tempQnNumber = 1;
+									for (i = 0; i < *totalQuestions; i++){
+										if (strcmp(tempTopic, questions[i].topic) == 0){
+											tempQnNumber++;
+										}
+									}
+									questions[validNums[numInput - 1]].questionNumber = tempQnNumber;
+									strcpy(questions[ validNums[numInput - 1] ].topic, tempTopic);
+
+									// Re-assignment of question numbers of other records in the topic to account for the gap if topic was changed
+									topicQns = 0;
+									for (i = 0; i < *totalQuestions; i++){
+										if (strcmp(input, questions[i].topic) == 0){
+											topicQns++;
+										}
+									}
+									k = 0;
+									for (i = 0; i < *totalQuestions; i++){
+										if (strcmp(input, questions[i].topic) == 0){
+											validNums[k] = i;
+											k++;
+										}
+									}
+									for (i = 0; i < topicQns; i++){
+										questions[validNums[i]].questionNumber = i + 1;
+									}
+									
+									system("cls");
+									green(); printf("Changes Saved!\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+									// input[0] = '1';
 								}
-							}
-							k = 0;
-							for (i = 0; i < *totalQuestions; i++){
-								if (strcmp(input, questions[i].topic) == 0){
-									validNums[k] = i;
-									k++;
+
+								else{
+									system("cls");
+									red(); printf("Changes Discarded.\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
 								}
-							}
-							for (i = 0; i < topicQns; i++){
-								questions[validNums[i]].questionNumber = i + 1;
-							}
-							
-							green(); printf("\nChanges Saved!\n"); reset();
-							editInput = 7;
-							input[0] = '1';
-							break;
-						case 2:
-							printf("Input New [Question]: ");
-							scanf(" %[^\n]s", questions[ validNums[numInput - 1] ].question);
-							green(); printf("\nChanges Saved!\n"); reset();
-							editInput = 7;
-							input[0] = '1';
-							break;
-						case 3:
-							printf("Input New [Choice 1]: ");
-							scanf(" %[^\n]s", questions[ validNums[numInput - 1] ].choice1);
-							green(); printf("\nChanges Saved!\n"); reset();
-							editInput = 7;
-							input[0] = '1';
-							break;
-						case 4:
-							printf("Input New [Choice 2]: ");
-							scanf(" %[^\n]s", questions[ validNums[numInput - 1] ].choice2);
-							green(); printf("\nChanges Saved!\n"); reset();
-							editInput = 7;
-							input[0] = '1';
-							break;
-						case 5:
-							printf("Input New [Choice 3]: ");
-							scanf(" %[^\n]s", questions[ validNums[numInput - 1] ].choice3);
-							green(); printf("\nChanges Saved!\n"); reset();
-							editInput = 7;
-							input[0] = '1';
-							break;
-						case 6:
-							printf("Input New [Answer]: ");
-							scanf(" %[^\n]s", questions[ validNums[numInput - 1] ].answer);
-							green(); printf("\nChanges Saved!\n"); reset();
-							editInput = 7;
-							input[0] = '1';
-							break;
-						case 7:
-							numInput = 0;
-							break;
-						default:
-							red(); printf("Invalid input!"); reset();
-							break;
+								
+								break;
+
+							case 2:
+								printf("\n");
+								printf("Input New [Question]: ");
+								scanf(" %[^\n]s", tempQuestion);
+								yellow(); printf("Do you want to save your current changes? (Y/N)"); reset();
+								printf("\n>> ");
+								scanf(" %c", &confirmation);
+
+								if (confirmation == 'Y' || confirmation == 'y'){
+									strcpy(questions[ validNums[numInput - 1] ].question, tempQuestion);
+									system("cls");
+									green(); printf("Changes Saved!\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+									// input[0] = '1';
+								}
+
+								else{
+									system("cls");
+									red(); printf("Changes Discarded.\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+								}
+
+								break;
+
+							case 3:
+								printf("\n");
+								printf("Input New [Choice 1]: ");
+								scanf(" %[^\n]s", tempChoice);
+								yellow(); printf("Do you want to save your current changes? (Y/N)"); reset();
+								printf("\n>> ");
+								scanf(" %c", &confirmation);
+
+								if (confirmation == 'Y' || confirmation == 'y'){
+									strcpy(questions[ validNums[numInput - 1] ].choice1, tempChoice);
+									system("cls");
+									green(); printf("Changes Saved!\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+									// input[0] = '1';
+								}
+
+								else{
+									system("cls");
+									red(); printf("Changes Discarded.\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+								}
+
+								break;
+
+							case 4:
+								printf("\n");
+								printf("Input New [Choice 2]: ");
+								scanf(" %[^\n]s", tempChoice);
+								yellow(); printf("Do you want to save your current changes? (Y/N)"); reset();
+								printf("\n>> ");
+								scanf(" %c", &confirmation);
+
+								if (confirmation == 'Y' || confirmation == 'y'){
+									strcpy(questions[ validNums[numInput - 1] ].choice2, tempChoice);
+									system("cls");
+									green(); printf("Changes Saved!\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+									// input[0] = '1';
+								}
+
+								else{
+									system("cls");
+									red(); printf("Changes Discarded.\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+								}
+
+								break;
+
+							case 5:
+								printf("\n");
+								printf("Input New [Choice 3]: ");
+								scanf(" %[^\n]s", tempChoice);
+								yellow(); printf("Do you want to save your current changes? (Y/N)"); reset();
+								printf("\n>> ");
+								scanf(" %c", &confirmation);
+
+								if (confirmation == 'Y' || confirmation == 'y'){
+									strcpy(questions[ validNums[numInput - 1] ].choice3, tempChoice);
+									system("cls");
+									green(); printf("Changes Saved!\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+									// input[0] = '1';
+								}
+
+								else{
+									system("cls");
+									red(); printf("\nChanges Discarded.\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+								}
+
+								break;
+
+							case 6:
+								printf("\n");
+								printf("Input New [Answer]: ");
+								scanf(" %[^\n]s", tempAnswer);
+								yellow(); printf("Do you want to save your current changes? (Y/N)"); reset();
+								printf("\n>> ");
+								scanf(" %c", &confirmation);
+
+								if (confirmation == 'Y' || confirmation == 'y'){
+									strcpy(questions[ validNums[numInput - 1] ].answer, tempAnswer);
+									system("cls");
+									green(); printf("Changes Saved!\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+									// input[0] = '1';
+								}
+
+								else{
+									system("cls");
+									red(); printf("Changes Discarded.\n\n"); reset();
+									editInput = 7;
+									numInput = -1;
+								}
+
+								break;
+
+							case 7:
+								numInput = -1;
+								system("cls");
+								break;
+
+							default:
+								red(); printf("Invalid input!"); reset();
+								printf("\n");
+								break;
+						}
+					
 					}
-				
+
+					// Re-sorts the questions array if needed
+					sortQuestions(questions, *totalQuestions);
 				}
 
-				// Re-sorts the questions array if needed
-				sortQuestions(questions, *totalQuestions);
-
+				else{
+					numInput = -1; // resets numInput value so loop will run for the next instance
+					system("cls");
+				}
 			}
 
 			/* If it does not exist, prompt the user to enter a valid input again;
 				second conditional is to prevent error message from appearing if user wants to exit */
 			else if (exists == 0 && input[0] != '1'){
-				red(); printf("Invalid Input!\n"); reset();
+				system("cls");
+				red(); printf("Invalid Input!\n\n"); reset();
 			}
+			
+			if (input[0] == '1')
+				system("cls");
 		}
 	}
 
