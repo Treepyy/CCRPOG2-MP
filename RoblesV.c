@@ -15,11 +15,10 @@ otherwise plagiarized the work of other students and/or persons.
 
 
 	/* TO DO:
-		- IMPROVE FOR LOOP READABILITY (VARIABLE NAMES), COMMENTS
 		- TEST SCRIPT
-		- FINAL SCREEN CLEANUP FOR MENU SELECTIONS
 
 	   Done:
+	    - FINAL SCREEN CLEANUP FOR MENU SELECTIONS
 	   	- ADD CONFIRMATION FOR EDIT RECORD
 	   	- PARAMETERS IN COMMENTS
 	    - REMOVED UNUSED FUNCTIONS
@@ -645,13 +644,16 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 							break;
 						case '4': // Case for player quitting the game preemptively
 							over = 1;
+
+							// Displays player stats at the end of the game
 							system("cls");
 							red(); printf("Game Over!\n"); reset();
 							printf("Player Name: ");
 							yellow(); printf("%s\n", players[i].name); reset();
 							printf("Final Score: ");
 							green(); printf("%d\n\n", score); reset();
-							players[i].score = score;
+
+							players[i].score = score; // Saves the score to the players struct
 							*totalPlayers = *totalPlayers + 1; // totalPlayers will be incremented once a session is complete
 
 							// Appends the current score data to scores.txt
@@ -664,6 +666,11 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 								fprintf(fp, "\n\n%s\n", players[i].name);
 								fprintf(fp, "%d", players[i].score);
 							}
+
+							cyan(); printf("[Press any key to return.]\n"); reset();
+							getch();
+							system("cls");
+							
 
 							break;
 						default:
@@ -697,13 +704,18 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 				// if the total number of answered questions is equal to the total number of questions,
 				// the game will automatically be over and the final score will be displayed
 				if (totalAnswered == *totalQuestions){
+
 					over = 1;
+
+					// Displays player stats at the end of the game
+					system("cls");
 					cyan(); printf("All questions answered.\n"); reset();
 					printf("Player Name: ");
 					yellow(); printf("%s\n", players[i].name); reset();
 					printf("Final Score: ");
 					green(); printf("%d\n", score); reset();
-					players[i].score = score;
+
+					players[i].score = score; // Saves the score to the players struct
 					*totalPlayers = *totalPlayers + 1; // totalPlayers will be incremented once a session is complete
 
 					// Appends the current score data to scores.txt
@@ -716,6 +728,10 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 						fprintf(fp, "\n\n%s\n", players[i].name);
 						fprintf(fp, "%d", players[i].score);
 					}
+
+					cyan(); printf("[Press any key to return.]\n"); reset();
+					getch();
+					system("cls");
 				}
 
 				// user is redirected back to choosing a topic at the end if a condition for ending the game is not met
@@ -921,7 +937,15 @@ void addRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuestions
 
 				// If the question and answer pair is a duplicate, an error message will be printed and the user will return to the previous menu
 				if (questionDuplicate){
-					red(); printf("That question and answer already exists!\n"); reset();
+					red(); printf("\nThat question and answer already exists! (Index: %d)\n", questionDuplicate); reset();
+					printf("Topic: %s\n", questions[questionDuplicate].topic);
+					printf("Question #%d\n", questions[questionDuplicate].questionNumber);
+					printf("%s\n", questions[questionDuplicate].question);
+					printf("%s\n", questions[questionDuplicate].choice1);
+					printf("%s\n", questions[questionDuplicate].choice2);
+					printf("%s\n", questions[questionDuplicate].choice3);
+					printf("Answer: %s\n", questions[questionDuplicate].answer);
+
 				}
 
 				// Else, if the question and answer pair is valid;
@@ -972,10 +996,12 @@ void addRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuestions
 									printf(">> ");
 									scanf(" %c", &confirmation);
 									if (confirmation == 'Y' || confirmation == 'y'){
+										system("cls");
 										green(); printf("Question Saved!"); reset();
 										*totalQuestions = *totalQuestions + 1; // Once the add record is successful and confirmed, totalQuestions variable in main will be incremented by one
 									}
 									else{
+										system("cls");
 										red(); printf("Question Discarded."); reset(); // Else, the totalQuestions variable will remain unchanged
 									}
 								}
@@ -984,6 +1010,12 @@ void addRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuestions
 					}
 				}
 			}
+		}
+
+		// Clears the screen and displays a message if user opts to exit adding a record preemptively
+		if (input[0] == '`'){
+			system("cls");
+			red(); printf("Question Discarded."); reset();
 		}
 
 		printf("\nTotal Questions: %d\n", *totalQuestions);
@@ -1001,7 +1033,7 @@ void addRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuestions
 	@param questions is the struct questionData array for storing questions 
 	@param addenQn is the string corresponding to the current user 'Question' input (in addRecord)
 	@param addenQn is the string corresponding to the current user 'Answer' input (in addRecord)
-	@return 1 if the question-answer pair belongs in the same struct array index, return 0 if there are no matches found
+	@return the index of the record if the question-answer pair belongs in the same struct array index, return 0 if there are no matches found
 */
 int existingQNACheck(struct questionData questions[MAX_QUESTIONS], string150 addedQn, string30 addedAns){
 
@@ -1026,9 +1058,9 @@ int existingQNACheck(struct questionData questions[MAX_QUESTIONS], string150 add
 		}
 	}
 
-	// If the question-answer pair belongs in the same struct array index, the function will return 1 (true)
+	// If the question-answer pair belongs in the same struct array index, the function will return the index (true)
 	if (matchQuestion == matchAnswer){
-		return 1;
+		return matchAnswer;
 	}
 
 	// Else, it returns 0 (false)
@@ -1515,10 +1547,12 @@ void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuesti
 						// Total questions will be decremented by 1 after deletion.
 						*totalQuestions = *totalQuestions - 1;
 						
+						system("cls");
 						yellow(); printf("Succesfully deleted.\n"); reset();
 						input[0] = '1';
 					}
 					else{ // if user types 'N' or any other input deletion will be aborted
+						system("cls");
 						green(); printf("Deletion aborted.\n"); reset();
 						input[0] = '1';
 					}
@@ -1647,6 +1681,7 @@ void importData(struct questionData questions[MAX_QUESTIONS], int* totalQuestion
 
 						// After the loop is complete, prints a success message and exits the menu
 						fclose(fp);
+						system("cls");
 						green(); printf("Import Complete!\n"); reset();
 						press = '1';
 						selection = '3';
@@ -1785,6 +1820,7 @@ void exportData(struct questionData questions[MAX_QUESTIONS], int* totalQuestion
 					}
 
 					fclose(fp);
+					system("cls");
 					green(); printf("Export complete!\n"); reset();
 					selection = '3';
 				}
@@ -1809,6 +1845,7 @@ void exportData(struct questionData questions[MAX_QUESTIONS], int* totalQuestion
 					}
 
 					fclose(fp);
+					system("cls");
 					green(); printf("Export complete!\n"); reset();
 					selection = '3';
 				}
