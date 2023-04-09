@@ -28,7 +28,7 @@
 
 ## Documentation
 - [x] In-line Comments
-- [ ] Test Script
+- [x] Test Script
 
 ## Bonus Requirements
 - [x] Sorting Scores on Display and File (03/14/2023)
