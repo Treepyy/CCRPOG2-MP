@@ -12,6 +12,3 @@ Lyn
 
 NewPlayer
 4
-
-Name2
-0

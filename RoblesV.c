@@ -494,6 +494,9 @@ void displayTopics(struct questionData questions[MAX_QUESTIONS], int *totalQuest
 */
 void importQuestions(struct questionData questions[MAX_QUESTIONS], int *totalQuestions){
 
+	// totalQuestions will be set to 0 at the start
+	*totalQuestions = 0;
+	
 	// Increment variable
 	int i, j;
 	int tempQnNumber = 1;
@@ -624,8 +627,6 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 		yellow(); printf("Enter Your Name: "); reset();
 		scanf(" %[^\n]s", players[i].name);
 		green(); printf("\nWelcome [%s]!\n", players[i].name); reset();
-
-		//*totalPlayers = *totalPlayers + 1;
 
 		// the loop will continue until the game is over (over == 1)
 		while (over != 1){
@@ -1554,6 +1555,10 @@ void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuesti
 	// Checking (bool) variables
 	int exists;
 
+	// buffer variables
+	int buffer;
+	char delSure;
+
 	// If total questions is greater than 0, proceed
 	if (*totalQuestions > 0){
 
@@ -1597,7 +1602,8 @@ void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuesti
 
 				int k = 0;
 
-				printf("\nQuestion Numbers Associated with the Topic:\n"); 
+				yellow(); printf("\nInput [0] to Exit.\n"); reset();
+				printf("Question Numbers Associated with the Topic:\n"); 
 
 				// Looks through the questions struct array for the question index associated with the inputted topic and stores them in the validNums array
 				for (i = 0; i < *totalQuestions; i++){
@@ -1609,29 +1615,36 @@ void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuesti
 				}
 
 				// Continues asking for input until user enters a valid input
-				while (numInput > topicQns || numInput < 1){
+				while (numInput > topicQns || numInput < 0){
 					printf("\n>> ");
-					scanf("%d", &numInput);
-					if (numInput > topicQns || numInput < 1){
+
+					// scanf is buffered so that character misinputs will not result in an infinite loop
+					buffer = scanf("%d", &numInput);
+					if (buffer == 0) {
+            			numInput = getchar(); // catches the character input
+        			}
+
+					// prints an error message if the selected number is out of range
+					if (numInput > topicQns || numInput < 0){
 						red(); printf("Invalid Input!\n"); reset();
 					}
 				}
 
-				char delSure;
-				while (delSure != 'Y' && delSure != 'y' && delSure != 'N' && delSure != 'n'){
+				if (numInput != 0){
+		
 					red(); printf("Are you sure you want to DELETE this question? Y/N (This action cannot be undone)\n"); reset();
 					scanf(" %c", &delSure);
 					if (delSure == 'Y' || delSure == 'y'){ // if user inputs 'Y' the deletion will continue
-						
+							
 						/* If total questions are greater than one, the questions struct array will shift by 1 backwards 
-						   until the gap left by the deleted record are all filled */
-						
+						until the gap left by the deleted record are all filled */
+							
 						if (*totalQuestions > 1){
 							// Starting increment of the for loop will be index of the item to be deleted in the array
 							for (i = validNums[numInput - 1]; i < *totalQuestions; i++){  
 
-	            				 // assign arr[i+1] to arr[i] using strcpy and equivalnce for the question number
-								 // if current iteration is within the range of topics;
+								// assign arr[i+1] to arr[i] using strcpy and equivalnce for the question number
+								// if current iteration is within the range of topics;
 								if (strcmp(questions[i].topic, input) == 0){
 									// if iteration has reached the end of the topics, qn number will be set to 1
 									if (strcmp(questions[i+1].topic, input) != 0 ){
@@ -1646,7 +1659,7 @@ void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuesti
 								else{
 									questions[i].questionNumber = questions[i+1].questionNumber; 
 								}
-									
+										
 								// for the rest of the struct elements, all will shift to the left
 								strcpy(questions[i].topic, questions[i+1].topic); 
 								strcpy(questions[i].question, questions[i+1].question);
@@ -1654,12 +1667,12 @@ void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuesti
 								strcpy(questions[i].choice2, questions[i+1].choice2);
 								strcpy(questions[i].choice3, questions[i+1].choice3);
 								strcpy(questions[i].answer, questions[i+1].answer);
-	       					 }  
+							}  
 						}
-						
+							
 						/* Else, if there is only one question, and the user wants to delete it, all elements will be returned to null
-						   by copying all elements of the index next to it. */
-						   
+						by copying all elements of the index next to it. */
+							
 						else{ 
 								i = numInput - 1;
 								questions[i].questionNumber = questions[i+1].questionNumber;
@@ -1669,27 +1682,37 @@ void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuesti
 								strcpy(questions[i].choice2, questions[i+1].choice2);
 								strcpy(questions[i].choice3, questions[i+1].choice3);
 								strcpy(questions[i].answer, questions[i+1].answer);
-							
-						}
+								
+							}
 						// Total questions will be decremented by 1 after deletion.
 						*totalQuestions = *totalQuestions - 1;
-						
+							
 						system("cls");
-						yellow(); printf("Succesfully deleted.\n"); reset();
-						input[0] = '1';
+						red(); printf("Successfully deleted.\n\n"); reset();
+						numInput = -1;
+						// input[0] = '1';
 					}
+
 					else{ // if user types 'N' or any other input deletion will be aborted
 						system("cls");
-						green(); printf("Deletion aborted.\n"); reset();
-						input[0] = '1';
+						green(); printf("Deletion aborted.\n\n"); reset();
+						numInput = -1;
+						// input[0] = '1';
 					}
+		
+				}
+
+				else{
+					system("cls");
+					numInput = -1;
 				}
 			}
 
 			/* If topic input not exist, prompt the user to enter a valid input again;
 				second conditional is to prevent error message from appearing if user wants to exit */
 			else if (exists == 0 && input[0] != '1'){
-				red(); printf("Invalid Input!\n"); reset();
+				system("cls");
+				red(); printf("Invalid Input!\n\n"); reset();
 			}
 
 
