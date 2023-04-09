@@ -486,6 +486,85 @@ void displayTopics(struct questionData questions[MAX_QUESTIONS], int *totalQuest
 }
 
 /* 
+	Function that handles importing a records file for the playGame() function
+	Precondition: questions struct array is empty, totalQuestions is equal to 0
+	@param questions is the struct questionData array for storing questions 
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@return void
+*/
+void importQuestions(struct questionData questions[MAX_QUESTIONS], int *totalQuestions){
+
+	// Increment variable
+	int i, j;
+	int tempQnNumber = 1;
+
+	// File variable declaration
+	FILE *fp;
+	
+	// Temp variable for handling topics
+	string20 tempTopic;
+
+	i = *totalQuestions;
+	string30 filename;
+
+	yellow(); printf("Please input the filename of the records file to start: "); reset();
+	scanf("%s", filename);
+	fp = fopen(filename, "r");
+
+	if (fp == NULL){
+		red(); printf("File not found!\n"); reset();
+	}
+
+	// If file exits, importing will start
+	else{	
+		// Scans the file for each number until the end of file is reached, then stores them into array data
+
+		while (
+			fscanf(fp, " %[^\n]s", tempTopic) != EOF &&
+			fscanf(fp, " %d", &questions[i].questionNumber) != EOF &&
+			fscanf(fp, " %[^\n]s", questions[i].question) != EOF &&
+			fscanf(fp, " %[^\n]s", questions[i].choice1) != EOF &&
+			fscanf(fp, " %[^\n]s", questions[i].choice2) != EOF &&
+			fscanf(fp, " %[^\n]s", questions[i].choice3) != EOF &&
+			fscanf(fp, " %[^\n]s", questions[i].answer) != EOF	
+			){
+				tempQnNumber = 1;
+				for (j = 0; j < i; j++) {
+					if (strcmp(tempTopic, questions[j].topic) == 0 && questions[j].questionNumber >= tempQnNumber) {
+						tempQnNumber = questions[j].questionNumber + 1;
+					}
+				}
+				// temporary adjustment to question number to ensure that new questions will have a higher number than existing ones
+				if (tempQnNumber != 0) {
+					questions[i].questionNumber = tempQnNumber;
+				}
+				strcpy(questions[i].topic, tempTopic);
+
+				// i will be the total number of questions read from the file	
+				i++;
+			}
+						
+			// The total questions read from the file will be added to the tally of total questions
+			*totalQuestions = i;
+
+			// The struct array is sorted
+			sortQuestions(questions, *totalQuestions);
+
+			// After the loop is complete, prints a success message and exits the menu
+			fclose(fp);
+			system("cls");
+			
+			if (*totalQuestions > 0){
+				green(); printf("Questions Found!\n"); reset();
+			}
+			else{
+				red(); printf("No questions found in file!\n"); reset();
+			}
+
+	}
+}
+
+/* 
 	Function that handles inputs for the 'Play' menu
 	Precondition: All structs and members are valid, totalPlayers and totalQuestions are greater than or equal to 0, scores.txt has been initialized and opened
 	@param questions is the struct questionData array for storing questions 
@@ -497,6 +576,9 @@ void displayTopics(struct questionData questions[MAX_QUESTIONS], int *totalQuest
 */
 void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData players[MAX_PLAYERS], int *totalPlayers, int *totalQuestions, FILE *fp){
 	
+	// Asks user to import questions from an exported (or created) text file
+	importQuestions(questions, totalQuestions);
+
 	// increment variables
 	int i = *totalPlayers, j;
 
@@ -515,28 +597,33 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 
 	// array of bool ints to determine if a question at a certain index has already been answered
 	int isAnswered[MAX_QUESTIONS];
-	// all current questions will be set to isAnswered[j] = 0 (false) at the start
-	for (j = 0; j < *totalQuestions; j++){
+	// all current questions will be set to isAnswered = 0 (false) at the start
+	for (j = 0; j < MAX_QUESTIONS; j++){
 		isAnswered[j] = 0;
 	}
 	
 	// array to store valid indexes of questions within a topic
 	int validQns[MAX_QUESTIONS];
+
 	// counting variables for answered questions, total questions in a topic, and total unanswered questions in a topic
 	int totalAnswered = 0, totalTopic, totalTopicUnanswered;
 
 	// if totalQuestions in main is 0, show an error message
 	if (*totalQuestions < 1){
-		red(); printf("No questions found!\n"); reset();
+		printf("Please export or input records to a ");
+		green(); printf(".txt"); reset();
+		printf(" file to play.\n");
 	}
 	// else, continue
 	else{
 
-		green(); printf("Questions found!\n"); reset();
+		printf("Total Questions: ");
+		cyan(); printf("%d\n", *totalQuestions); reset();
+
 		// asks player to input their name
 		yellow(); printf("Enter Your Name: "); reset();
 		scanf(" %[^\n]s", players[i].name);
-		green(); printf("Welcome [%s]!\n", players[i].name); reset();
+		green(); printf("\nWelcome [%s]!\n", players[i].name); reset();
 
 		//*totalPlayers = *totalPlayers + 1;
 
@@ -550,7 +637,12 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 			while (exists == 0){
 
 				printf("Current Score: ");
-				green(); printf("%d\n", score);
+				green(); printf("%d\n\n", score); reset();
+				printf("Total Questions: ");
+				yellow(); printf("%d\n", *totalQuestions); reset();
+				printf("Questions Answered: ");
+				yellow(); printf("%d\n", totalAnswered); reset();
+
 				yellow(); printf("\nType the Topic to Answer From\n"); reset();
 				displayTopics(questions, totalQuestions);
 
@@ -586,7 +678,7 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 				}
 			}
 
-			// printf("Total Number of Questions in Topic: %d\n", totalTopic);
+			//printf("Total Number of Questions in Topic: %d\n", totalTopic);
 			
 			// total unanswered questions in a certain topic will be initialized to 0;
 			// if the corresponding isAnswered value of a valid question is 0, total unanswered will be incremented
@@ -619,10 +711,11 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 					yellow(); printf("Randomizing...\r"); reset();
 					current = genRandInt(0, totalTopic - 1);
 				}
-				// printf("Random Number: %d\n", validQns[current]);
+				//printf("Random Number: %d\n", validQns[current]);
 
 				// prints the current question data and presents the user with a choice
-				printf("%s\n[1] %s\n[2] %s\n[3] %s\n[4] End Game\n", questions[validQns[current]].question, questions[validQns[current]].choice1, questions[validQns[current]].choice2, questions[validQns[current]].choice3);
+				printf("%s\n[1] %s\n[2] %s\n[3] %s\n[4] End Game\n", questions[validQns[current]].question, questions[validQns[current]].choice1, 
+						questions[validQns[current]].choice2, questions[validQns[current]].choice3);
 				printf(">> ");
 
 				// choice will be set to '0' as a buffer
@@ -810,6 +903,32 @@ void viewScores(struct playerData players[MAX_PLAYERS], int* totalPlayers){
 }
 
 /* 
+	Function that clears the questions array for when user exits the Manage Data menu
+	Precondition: All structs and members are valid, totalQuestions are greater than or equal to 0
+	@param questions is the struct questionData array for storing questions 
+	@param *totalQuestions is the pointer to the variable in main storing the total number of questions currently being stored in the program
+	@return void
+*/
+void clearRecords(struct questionData questions[MAX_QUESTIONS], int *totalQuestions){
+	
+	int i;
+
+    // For loop will go through all records in the array and set all strings to null and question number to 0
+    for(i = 0; i < *totalQuestions; i++){
+        questions[i].topic[0] = '\0';
+        questions[i].questionNumber = 0;
+        questions[i].question[0] = '\0';
+        questions[i].choice1[0] = '\0';
+        questions[i].choice2[0] = '\0';
+        questions[i].choice3[0] = '\0';
+        questions[i].answer[0] = '\0';
+    }
+
+    // The totalQuestions value will be set to zero to indicate that the array is now empty
+    *totalQuestions = 0;
+}
+
+/* 
 	Function that handles inputs for the Manage Data menu 
 	Precondition: All structs and members are valid, totalPlayers and totalQuestions are greater than or equal to 0
 	@param questions is the struct questionData array for storing questions 
@@ -862,6 +981,10 @@ void adminPanel(struct questionData questions[MAX_QUESTIONS], struct playerData 
 				break;
 			
 			case '6': // If 'Exit' is chosen, the menu is exited by terminating the while loop.
+
+				// Unsaved (non-exported) records will be cleared, and totalQuestions will be reset to 0
+				clearRecords(questions, totalQuestions);
+
 				system("cls");
 				break;
 			
@@ -1443,6 +1566,10 @@ void deleteRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuesti
 			// Gets user input, will be case sensitive
 			printf("\n>> ");
 			scanf(" %[^\n]s", input);
+
+			if (input[0] == '1')
+				system("cls");
+
 			exists = 0;
 
 			// This loop will scan the questions struct array for topics if the input exists
@@ -1624,9 +1751,9 @@ void importData(struct questionData questions[MAX_QUESTIONS], int* totalQuestion
 				i = *totalQuestions;
 				while (press != '1'){
 					
-					green(); printf("Enter File Name (exclude .txt): "); reset();
+					green(); printf("Enter File Name: "); reset();
 					scanf(" %[^\n]s", input);
-					strcat(input, ".txt");
+
 					// Reads from inputted txt file, stores into questions array;
 					fp = fopen(input, "r");
 
@@ -1695,9 +1822,9 @@ void importData(struct questionData questions[MAX_QUESTIONS], int* totalQuestion
 				j = 0;
 				while (press != '1'){
 					
-					green(); printf("Enter File Name (exclude .txt): "); reset();
+					green(); printf("Enter File Name: "); reset();
 					scanf(" %[^\n]s", input);
-					strcat(input, ".txt");
+
 					// Reads from inputted txt file, stores into questions array;
 					fp = fopen(input, "r");
 

@@ -13,11 +13,5 @@ Lyn
 NewPlayer
 4
 
-Name
-2
-
-NewPlayer
-1
-
-Test
-1
+Name2
+0
