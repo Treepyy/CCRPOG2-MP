@@ -4,11 +4,11 @@
 - ID12279560
 
 ## Finalization
-- [ ] Test Script
-- [x] Presentation
-- [x] Self-Created Questions Record
 - [ ] Final Debugging
-- [ ] User Interface Cleanup
+- [x] Test Script
+- [x] Presentation -> https://tinyurl.com/prog2MPcanva
+- [x] Self-Created Questions Record
+- [x] User Interface Cleanup
 
 ## Main Requirements
 - [x] Function Cleanup / Optimization
