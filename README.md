@@ -4,35 +4,35 @@
 - ID12279560
 
 ## Final Debugging Script
-- [ ] Enter Wrong Password
-- [ ] Enter Right Password 
-- [ ] Add 3 New Record
-- [ ] Try to add an Existing Record
-- [ ] Import Record
-- [ ] Import Scores
-- [ ] Edit Record (not topic)
-- [ ] Edit Record out of a Topic
-- [ ] Edit Record into a Topic
-- [ ] Delete Record
-- [ ] Delete All Records of A Topic
-- [ ] Export Record
-- [ ] Export Scores
-- [ ] Delete All Records
-- [ ] Add a New Record
-- [ ] Exit to Main Menu
-- [ ] Play Game
-- [ ] Input File that does not Exist
-- [ ] Input Empty File
-- [ ] Input Valid File
-- [ ] Select Name
-- [ ] Input Invalid Topic
-- [ ] Input Valid Topic
-- [ ] Finish using End Game Option
-- [ ] Play Another Game
-- [ ] Use up one Topic
-- [ ] Input Used Up Topic
-- [ ] Play Until All Questions Answered
-- [ ] Exit
+[PASS] Enter Wrong Password
+[PASS] Enter Right Password 
+[PASS] Add 3 New Record
+[PASS] Try to add an Existing Record
+[PASS] Import Record
+[PASS] Import Scores
+[PASS] Edit Record (not topic)
+[PASS] Edit Record out of a Topic
+[PASS] Edit Record into a Topic
+[PASS] Delete Record
+[PASS] Delete All Records of A Topic
+[PASS] Export Record
+[PASS] Export Scores
+[PASS] Delete All Records
+[PASS] Add a New Record
+[PASS] Exit to Main Menu
+[PASS] Play Game
+[PASS] Input File that does not Exist
+[PASS] Input Empty File
+[PASS] Input Valid File
+[PASS] Select Name
+[PASS] Input Invalid Topic
+[PASS] Input Valid Topic
+[PASS] Finish using End Game Option
+[PASS] Play Another Game
+[PASS] Use up one Topic
+[PASS] Input Used Up Topic
+[PASS] Play Until All Questions Answered
+[PASS] Exit
 
 ## Finalization
 - [ ] Final Debugging
