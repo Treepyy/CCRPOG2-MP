@@ -4,38 +4,38 @@
 - ID12279560
 
 ## Final Debugging Script
-[PASS] Enter Wrong Password
-[PASS] Enter Right Password 
-[PASS] Add 3 New Record
-[PASS] Try to add an Existing Record
-[PASS] Import Record
-[PASS] Import Scores
-[PASS] Edit Record (not topic)
-[PASS] Edit Record out of a Topic
-[PASS] Edit Record into a Topic
-[PASS] Delete Record
-[PASS] Delete All Records of A Topic
-[PASS] Export Record
-[PASS] Export Scores
-[PASS] Delete All Records
-[PASS] Add a New Record
-[PASS] Exit to Main Menu
-[PASS] Play Game
-[PASS] Input File that does not Exist
-[PASS] Input Empty File
-[PASS] Input Valid File
-[PASS] Select Name
-[PASS] Input Invalid Topic
-[PASS] Input Valid Topic
-[PASS] Finish using End Game Option
-[PASS] Play Another Game
-[PASS] Use up one Topic
-[PASS] Input Used Up Topic
-[PASS] Play Until All Questions Answered
-[PASS] Exit
+- [x] Enter Wrong Password [PASS] 
+- [x] Enter Right Password [PASS] 
+- [x] Add 3 New Record [PASS] 
+- [x] Try to add an Existing Record [PASS] 
+- [x] Import Record [PASS] 
+- [x] Import Scores [PASS] 
+- [x] Edit Record (not topic) [PASS] 
+- [x] Edit Record out of a Topic [PASS] 
+- [x] Edit Record into a Topic [PASS] 
+- [x] Delete Record [PASS] 
+- [x] Delete All Records of A Topic [PASS] 
+- [x] Export Record [PASS] 
+- [x] Export Scores [PASS] 
+- [x] Delete All Records [PASS] 
+- [x] Add a New Record [PASS] 
+- [x] Exit to Main Menu [PASS] 
+- [x] Play Game [PASS] 
+- [x] Input File that does not Exist [PASS] 
+- [x] Input Empty File [PASS] 
+- [x] Input Valid File [PASS] 
+- [x] Select Name [PASS] 
+- [x] Input Invalid Topic [PASS] 
+- [x] Input Valid Topic [PASS] 
+- [x] Finish using End Game Option [PASS] 
+- [x] Play Another Game [PASS] 
+- [x] Use up one Topic [PASS] 
+- [x] Input Used Up Topic [PASS] 
+- [x] Play Until All Questions Answered [PASS] 
+- [x] Exit [PASS]
 
 ## Finalization
-- [ ] Final Debugging
+- [x] Final Debugging
 - [x] Test Script
 - [x] Presentation -> https://tinyurl.com/prog2MPcanva
 - [x] Self-Created Questions Record
