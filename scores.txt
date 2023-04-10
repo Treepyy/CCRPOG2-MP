@@ -1,3 +1,15 @@
+Gamer
+15
+
+Scorer
+14
+
+Player_1
+11
+
+Player-2
+8
+
 Jacky
 7
 
@@ -12,3 +24,6 @@ Lyn
 
 NewPlayer
 4
+
+Bob
+1

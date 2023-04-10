@@ -9,15 +9,16 @@ otherwise plagiarized the work of other students and/or persons.
 /*
 	Description: A program which simulates a quiz trivia game
 	Programmed by: Vance Gyan M. Robles, Section S23B
-	Last modified: 04/05/2023
-	Version: 0.9b
+	Last modified: 04/10/2023
+	Version: 1.0a
 */
 
 
 	/* TO DO:
-		- TEST SCRIPT
+		- PASS
 
 	   Done:
+	    - TEST SCRIPT
 	    - FINAL SCREEN CLEANUP FOR MENU SELECTIONS
 	   	- ADD CONFIRMATION FOR EDIT RECORD
 	   	- PARAMETERS IN COMMENTS
@@ -802,7 +803,6 @@ void playGame(struct questionData questions[MAX_QUESTIONS], struct playerData pl
 					over = 1;
 
 					// Displays player stats at the end of the game
-					system("cls");
 					cyan(); printf("All questions answered.\n"); reset();
 					printf("Player Name: ");
 					yellow(); printf("%s\n", players[i].name); reset();
@@ -1034,6 +1034,7 @@ void addRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuestions
 	string150 tempQuestion;
 	string30 tempAnswer;
 	string20 tempTopic;
+	int questionDuplicate;
 
 	char input[150];
 	char confirmation;
@@ -1056,11 +1057,11 @@ void addRecord(struct questionData questions[MAX_QUESTIONS], int* totalQuestions
 			// If input is not ` (exit), continue to ask for the next input.
 			if (input[0] != '`'){
 
-				// The questionDuplicate variable will serve as a true or false switch (bool) in order to check if the inputted question and answer pair already exists
-				int questionDuplicate = existingQNACheck(questions, tempQuestion, tempAnswer);
+				// The questionDuplicate variable will to check if the inputted question and answer pair already exists
+				questionDuplicate = existingQNACheck(questions, tempQuestion, tempAnswer);
 
 				// If the question and answer pair is a duplicate, an error message will be printed and the user will return to the previous menu
-				if (questionDuplicate){
+				if (questionDuplicate != -1){
 					red(); printf("\nThat question and answer already exists! (Index: %d)\n", questionDuplicate); reset();
 					printf("Topic: %s\n", questions[questionDuplicate].topic);
 					printf("Question #%d\n", questions[questionDuplicate].questionNumber);
@@ -1187,8 +1188,8 @@ int existingQNACheck(struct questionData questions[MAX_QUESTIONS], string150 add
 		return matchAnswer;
 	}
 
-	// Else, it returns 0 (false)
-	return 0;
+	// Else, it returns -1 (false, or does not exist)
+	return -1;
 
 
 }

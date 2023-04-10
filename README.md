@@ -3,6 +3,37 @@
 - S23B
 - ID12279560
 
+## Final Debugging Script
+- [ ] Enter Wrong Password
+- [ ] Enter Right Password 
+- [ ] Add 3 New Record
+- [ ] Try to add an Existing Record
+- [ ] Import Record
+- [ ] Import Scores
+- [ ] Edit Record (not topic)
+- [ ] Edit Record out of a Topic
+- [ ] Edit Record into a Topic
+- [ ] Delete Record
+- [ ] Delete All Records of A Topic
+- [ ] Export Record
+- [ ] Export Scores
+- [ ] Delete All Records
+- [ ] Add a New Record
+- [ ] Exit to Main Menu
+- [ ] Play Game
+- [ ] Input File that does not Exist
+- [ ] Input Empty File
+- [ ] Input Valid File
+- [ ] Select Name
+- [ ] Input Invalid Topic
+- [ ] Input Valid Topic
+- [ ] Finish using End Game Option
+- [ ] Play Another Game
+- [ ] Use up one Topic
+- [ ] Input Used Up Topic
+- [ ] Play Until All Questions Answered
+- [ ] Exit
+
 ## Finalization
 - [ ] Final Debugging
 - [x] Test Script

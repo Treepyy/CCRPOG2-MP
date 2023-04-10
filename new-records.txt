@@ -50,8 +50,8 @@ Film
 1
 Which of the following TV episodes have a 10/10 rating on IMDb?
 Ozymandias
-Plan-and-Execution
-The-Winds-of-Winter
+Blink
+Hush
 Ozymandias
 
 Film
@@ -156,7 +156,7 @@ Which country is home to the most volcanos?
 Japan
 Philippines
 Indonesia
-Indonessia
+Indonesia
 
 
 
